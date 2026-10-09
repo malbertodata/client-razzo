@@ -126,10 +126,10 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
           --fondue-stack-gap: 1.125rem;
         }
         .nfc-header-band {
-          padding: 1rem 1rem 0 0;
+          padding: 0.75rem 1rem 0 0;
         }
         .nfc-logo {
-          top: calc(1rem + 1.75rem + 0.625rem);
+          top: calc(0.75rem + 1.75rem + 0.625rem);
         }
         .nfc-content {
           padding-top: 1.5rem;
@@ -157,12 +157,12 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         grid-template-columns: var(--nfc-logo-gutter) 1fr auto;
         align-items: center;
         box-sizing: border-box;
-        padding: 1.25rem 1.25rem 0 0;
+        padding: 1rem 1.25rem 0 0;
         pointer-events: none;
       }
       @media (min-width: 1024px) {
         .nfc-header-band {
-          padding: 2.5rem 2.5rem 0 0;
+          padding: 2.25rem 2.5rem 0 0;
         }
       }
       .nfc-star-link {
@@ -233,7 +233,7 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       }
       .nfc-logo {
         position: absolute;
-        top: calc(1.25rem + 1.75rem + 0.75rem);
+        top: calc(1rem + 1.75rem + 0.75rem);
         left: 50%;
         display: block;
         height: auto;
@@ -247,7 +247,7 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       }
       @media (min-width: 1024px) {
         .nfc-logo {
-          top: calc(2.5rem + 1.75rem + 1.25rem);
+          top: calc(2.25rem + 1.75rem + 1.25rem);
           width: 57px;
           max-width: none;
         }
@@ -679,7 +679,7 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       .fondue-widget-overlay {
         position: fixed;
         inset: 0;
-        z-index: 200;
+        z-index: 220;
         display: flex;
         flex-direction: column;
         background: #000;
@@ -729,6 +729,11 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       }
       body.fondue-widget-open {
         overflow: hidden;
+      }
+      body.fondue-widget-open .nfc-header-band,
+      body.fondue-widget-open .nfc-brand-plate,
+      body.fondue-widget-open .nfc-content {
+        display: none;
       }
       .nfc-lang {
         display: flex;
@@ -1154,19 +1159,6 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
                     </div>
                   </div>
                 </div>
-                <div class="fondue-widget-overlay" id="fondue-widget-overlay" hidden>
-                  <button type="button" class="fondue-widget-back" id="fondue-widget-close">
-                    {ui.back}
-                  </button>
-                  <div class="fondue-widget-frame">
-                    <iframe
-                      class="fondue-widget"
-                      id="fondue-aleno-widget"
-                      title={ui.widgetTitle}
-                      data-widget-src={restaurantWidgetUrl}
-                    />
-                  </div>
-                </div>
               </>
             ) : null
           }
@@ -1180,6 +1172,23 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         </div>
       </div>
     </main>
+    {
+      isBooking ? (
+        <div class="fondue-widget-overlay" id="fondue-widget-overlay" hidden>
+          <button type="button" class="fondue-widget-back" id="fondue-widget-close">
+            {ui.back}
+          </button>
+          <div class="fondue-widget-frame">
+            <iframe
+              class="fondue-widget"
+              id="fondue-aleno-widget"
+              title={ui.widgetTitle}
+              data-widget-src={restaurantWidgetUrl}
+            />
+          </div>
+        </div>
+      ) : null
+    }
     {
       isBooking ? (
         <script>

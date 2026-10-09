@@ -58,14 +58,16 @@ openButtons.forEach((openBtn) => {
 closeBtn?.addEventListener('click', closeWidget);
 
 const params = new URLSearchParams(window.location.search);
-if (params.has('restaurant')) {
+if (iframe?.getAttribute('src')?.trim()) {
+  document.body.classList.add('fondue-widget-open');
+  overlay && (overlay.hidden = false);
+} else if (params.has('restaurant')) {
   const restaurantBtn = document.querySelector<HTMLElement>(
     '[data-fondue-show-widget][data-fondue-link="restaurant"]',
   );
   const src = restaurantBtn?.getAttribute('data-widget-src')?.trim();
   if (src) openWidget(src, 'restaurant', restaurantBtn);
-}
-if (params.has('chalet')) {
+} else if (params.has('chalet')) {
   const chaletBtn = document.querySelector<HTMLElement>(
     '[data-fondue-show-widget][data-fondue-link="chalet"]',
   );
