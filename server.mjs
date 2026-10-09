@@ -70,6 +70,34 @@ async function readRequestBody(req) {
   return Buffer.concat(chunks).toString('utf8');
 }
 
+const HOP_BY_HOP_RESPONSE = new Set([
+  'connection',
+  'keep-alive',
+  'proxy-authenticate',
+  'proxy-authorization',
+  'te',
+  'trailers',
+  'transfer-encoding',
+  'upgrade',
+]);
+
+/** Node fetch decompresses bodies; strip encoding/length from upstream before replying. */
+function outboundAnalyticsHeaders(upstreamHeaders, { bodyByteLength, isHead }) {
+  const out = {};
+  for (const [key, value] of upstreamHeaders) {
+    const lower = key.toLowerCase();
+    if (HOP_BY_HOP_RESPONSE.has(lower)) continue;
+    if (lower === 'content-encoding') continue;
+    if (lower === 'content-length') continue;
+    if (lower === 'transfer-encoding') continue;
+    out[key] = value;
+  }
+  if (!isHead) {
+    out['content-length'] = String(bodyByteLength);
+  }
+  return out;
+}
+
 async function proxyAnalytics(req, upstreamPath) {
   const incoming = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const target = new URL(`${umamiOrigin}${upstreamPath}`);
@@ -92,10 +120,11 @@ async function proxyAnalytics(req, upstreamPath) {
   }
 
   const res = await fetch(target, { method, headers, body });
-  return new Response(res.body, {
-    status: res.status,
-    headers: res.headers,
-  });
+  let responseBody = Buffer.alloc(0);
+  if (method !== 'HEAD') {
+    responseBody = Buffer.from(await res.arrayBuffer());
+  }
+  return { status: res.status, headers: res.headers, method, responseBody };
 }
 
 createServer(async (req, res) => {
@@ -105,13 +134,23 @@ createServer(async (req, res) => {
 
     if (decision.kind === 'allow') {
       const proxied = await proxyAnalytics(req, decision.upstreamPath);
-      res.writeHead(proxied.status, Object.fromEntries(proxied.headers));
-      if (proxied.body) {
-        const buf = Buffer.from(await proxied.arrayBuffer());
-        res.end(buf);
-      } else {
+      const isHead = proxied.method === 'HEAD';
+      if (isHead) {
+        res.writeHead(
+          proxied.status,
+          outboundAnalyticsHeaders(proxied.headers, { bodyByteLength: 0, isHead: true }),
+        );
         res.end();
+        return;
       }
+      res.writeHead(
+        proxied.status,
+        outboundAnalyticsHeaders(proxied.headers, {
+          bodyByteLength: proxied.responseBody.length,
+          isHead: false,
+        }),
+      );
+      res.end(proxied.responseBody);
       return;
     }
     if (decision.kind === 'deny') {
