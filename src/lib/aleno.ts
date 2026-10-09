@@ -297,7 +297,7 @@ export function appendReservationLinkParams(reservationUrl: string, ctx: Reserva
   for (const [key, value] of ctx.incoming.entries()) {
     if (!key.startsWith('utm_')) continue;
     if (url.searchParams.has(key)) continue;
-    url.searchParams.set(key, value);
+    url.searchParams.set(key, value.trim().toLowerCase());
   }
 
   return url.toString();

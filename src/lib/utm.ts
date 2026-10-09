@@ -10,7 +10,7 @@ export function buildFondueUtmSearchParams(input: {
   params.delete('locale');
 
   const setIfAbsent = (key: string, value: string | undefined) => {
-    const v = value?.trim();
+    const v = value?.trim().toLowerCase();
     if (!v || params.has(key)) return;
     params.set(key, v);
   };
