@@ -428,14 +428,9 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         list-style: none;
         border: 1px solid rgba(255, 255, 255, 0.28);
         background: rgba(255, 255, 255, 0.04);
-        columns: 2;
-        column-gap: 0.75rem;
-      }
-      .fondue-groups-sheet-fields li {
-        break-inside: avoid;
-      }
-      .fondue-groups-sheet-fields li + li {
-        margin-top: 0.2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
       }
       .fondue-groups-sheet-actions {
         display: flex;
@@ -639,7 +634,7 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0;
+        gap: 1.25rem;
         margin-top: 2rem;
         width: 100%;
         padding: 0 0.75rem;
@@ -647,10 +642,49 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       }
       .nfc-footer-instagram {
         display: flex;
-        margin-bottom: 4rem;
+        flex-shrink: 0;
         color: oklch(96.7% 0.003 264.542);
         line-height: 0;
         transition: opacity 0.15s ease;
+      }
+      /* Short viewports: scroll full page stack; pin Instagram; scroll legal links if needed. */
+      @media (max-height: 900px) {
+        .nfc-content {
+          display: block;
+          padding-bottom: max(
+            5.5rem,
+            calc(2.75rem + 2.5rem + env(safe-area-inset-bottom))
+          );
+        }
+        .nfc-body {
+          display: flex;
+          flex: none;
+          min-height: auto;
+          justify-content: flex-start;
+        }
+        .nfc-site-footer {
+          flex-shrink: 0;
+          gap: 0;
+          margin-top: 1.5rem;
+        }
+        .nfc-footer-instagram {
+          position: fixed;
+          right: max(1.25rem, env(safe-area-inset-right));
+          bottom: max(1.25rem, env(safe-area-inset-bottom));
+          z-index: 15;
+        }
+        .nfc-footer {
+          box-sizing: border-box;
+          max-width: 100%;
+          overflow-x: auto;
+          overflow-y: hidden;
+          justify-content: safe center;
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior-x: contain;
+          scrollbar-width: thin;
+          padding-inline: 0.25rem;
+          padding-bottom: 0.125rem;
+        }
       }
       .nfc-footer-instagram:hover {
         opacity: 0.85;
