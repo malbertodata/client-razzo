@@ -232,8 +232,8 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         height: 100%;
         min-height: 0;
         box-sizing: border-box;
-        padding: 2rem var(--nfc-lang-gutter) 1.75rem var(--nfc-logo-gutter);
-        overflow-y: auto;
+        padding: 2rem var(--nfc-lang-gutter) 0 var(--nfc-logo-gutter);
+        overflow-y: hidden;
         overscroll-behavior: contain;
       }
       .nfc-body {
@@ -635,9 +635,10 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         flex-direction: column;
         align-items: center;
         gap: 1.25rem;
-        margin-top: 2rem;
+        flex-shrink: 0;
+        margin-top: auto;
         width: 100%;
-        padding: 0 0.75rem;
+        padding: 1.25rem 0.75rem max(1.75rem, env(safe-area-inset-bottom));
         box-sizing: border-box;
       }
       .nfc-footer-instagram {
@@ -647,10 +648,19 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         line-height: 0;
         transition: opacity 0.15s ease;
       }
+      /* Tall enough: legal links stay on the bottom edge; no page scroll. */
+      @media (min-height: 901px) {
+        .nfc-body {
+          flex: 1;
+          min-height: 0;
+          justify-content: center;
+        }
+      }
       /* Short viewports: scroll full page stack; pin Instagram; scroll legal links if needed. */
       @media (max-height: 900px) {
         .nfc-content {
           display: block;
+          overflow-y: auto;
           padding-bottom: max(
             5.5rem,
             calc(2.75rem + 2.5rem + env(safe-area-inset-bottom))
@@ -663,9 +673,9 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
           justify-content: flex-start;
         }
         .nfc-site-footer {
-          flex-shrink: 0;
           gap: 0;
           margin-top: 1.5rem;
+          padding-bottom: max(1.75rem, env(safe-area-inset-bottom));
         }
         .nfc-footer-instagram {
           position: fixed;
