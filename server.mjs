@@ -52,27 +52,41 @@ function pinWebsiteId(bodyText) {
   return JSON.stringify(record);
 }
 
-async function proxyAnalytics(request, upstreamPath) {
-  const incoming = new URL(request.url, `http://127.0.0.1:${port}`);
+function header(req, name) {
+  const value = req.headers[name.toLowerCase()];
+  return Array.isArray(value) ? value[0] : value;
+}
+
+async function readRequestBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+async function proxyAnalytics(req, upstreamPath) {
+  const incoming = new URL(req.url || '/', `http://127.0.0.1:${port}`);
   const target = new URL(`${umamiOrigin}${upstreamPath}`);
   target.search = incoming.search;
 
   const headers = new Headers();
-  const accept = request.headers.get('accept');
+  const accept = header(req, 'accept');
   if (accept) headers.set('accept', accept);
-  const userAgent = request.headers.get('user-agent');
+  const userAgent = header(req, 'user-agent');
   if (userAgent) headers.set('user-agent', userAgent);
-  const forwarded = request.headers.get('x-forwarded-for');
+  const forwarded = header(req, 'x-forwarded-for');
   if (forwarded) headers.set('x-forwarded-for', forwarded);
 
+  const method = (req.method || 'GET').toUpperCase();
   let body;
-  if (request.method === 'POST') {
-    const raw = await request.text();
+  if (method === 'POST') {
+    const raw = await readRequestBody(req);
     body = pinWebsiteId(raw);
-    headers.set('content-type', request.headers.get('content-type') || 'application/json');
+    headers.set('content-type', header(req, 'content-type') || 'application/json');
   }
 
-  const res = await fetch(target, { method: request.method, headers, body });
+  const res = await fetch(target, { method, headers, body });
   return new Response(res.body, {
     status: res.status,
     headers: res.headers,

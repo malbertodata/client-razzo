@@ -2,7 +2,7 @@
 
 Standalone **Fondue Chalet 2026** campaign site for Client Podium / Razzo.
 
-- **Domain:** `razzosg.ch`
+- **Domain:** `www.razzosg.ch` (apex `razzosg.ch` redirects to www)
 - **Config:** `src/config/campaign.json`
 - **Ops:** [docs/fondue-chalet-razzosg.md](docs/fondue-chalet-razzosg.md)
 

@@ -7,9 +7,12 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 | Audience | Path |
 |----------|------|
 | Booking hub (default) | `/buchen` · `/en/book` |
-| Chalet poster (QR) | `/chalet-aussen` → `/buchen` (+ UTMs) |
-| Business mailing | `/unternehmen` → `/buchen` (+ UTMs) |
-| Associations | `/vereine` → `/buchen` (+ UTMs) |
+| Chalet poster (QR) | `https://www.razzosg.ch/fondue-chalet` → `/reservieren` (+ UTMs) |
+| Business mailing | `https://www.razzosg.ch/firmenfeier` → `/reservieren` (+ UTMs) |
+| Associations / clubs | `https://www.razzosg.ch/vereinsfeier` → `/reservieren` (+ UTMs) |
+| Medical practices | `https://www.razzosg.ch/praxisfeier` → `/reservieren` (+ UTMs) |
+
+Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`.
 
 `/` → `/buchen` · `/en` → `/en/book`
 
@@ -25,7 +28,18 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:4321/buchen
+Open http://localhost:4321/reservieren
+
+Short links (same redirects as production; `npm run dev` on port **4321**):
+
+| Channel | Local URL |
+|---------|-----------|
+| Chalet QR | http://localhost:4321/fondue-chalet |
+| Firmenfeier | http://localhost:4321/firmenfeier |
+| Vereinsfeier | http://localhost:4321/vereinsfeier |
+| Praxisfeier (Arztpraxen) | http://localhost:4321/praxisfeier |
+
+After `npm run build`, `npm run preview` serves the same paths on port **3000** (e.g. http://localhost:3000/fondue-chalet).
 
 Production-like preview (static + Umami proxy):
 

@@ -17,8 +17,8 @@ Do **not** use the old **staging** proxy token `338ca50006e1635ca87d24199992d00b
 |----------|------------|---------|-------|
 | `PUBLIC_ANALYTICS_PROXY_PATH` | yes | — | `a2a2ab20899f180a873248bcf4cc6695` |
 | `ANALYTICS_PROXY_PATH` | — | yes | `a2a2ab20899f180a873248bcf4cc6695` |
-| `PUBLIC_UMAMI_WEBSITE_ID` | yes | — | UUID from Umami → Razzo → Edit |
-| `UMAMI_WEBSITE_ID` | — | yes | same UUID |
+| `PUBLIC_UMAMI_WEBSITE_ID` | yes | — | `33a0be4d-aa57-4282-b5d4-424952f97e7b` |
+| `UMAMI_WEBSITE_ID` | — | yes | `33a0be4d-aa57-4282-b5d4-424952f97e7b` |
 | `UMAMI_UPSTREAM_URL` | — | optional | `https://analytics.clientpodium.com` |
 | `PORT` | — | yes | `3000` |
 
@@ -28,7 +28,7 @@ Mark the `PUBLIC_*` variables as **Available at Buildtime** in Coolify. After ch
 
 - Website **Razzo** on [analytics.clientpodium.com](https://analytics.clientpodium.com).
 - Copy **Website ID** from edit screen or URL `/websites/{uuid}/…`.
-- Prefer domain **`razzosg.ch, www.razzosg.ch`** (or canonical host + redirect) so apex and www both count.
+- Umami domain (one field): **`www.razzosg.ch`**. Use Coolify redirect so **`razzosg.ch` → `www.razzosg.ch`** (or the reverse) — then one hostname in Umami is enough.
 
 ## Agency (recommended)
 
