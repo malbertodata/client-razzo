@@ -14,7 +14,15 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 
 Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`.
 
-`/` → `/buchen` · `/en` → `/en/book`
+English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`.
+
+`/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
+
+### Catch-all (production)
+
+Anything **not** served from `dist/` (booking pages, short-link redirects, `/_astro/*`, `/brand/*`, analytics proxy) is answered by [`server.mjs`](../server.mjs) with **302 → [https://www.razzo.sg/](https://www.razzo.sg/)**. Override target via env `MAIN_SITE_ORIGIN`.
+
+`npm run dev` (Astro only) may still return 404 for unknown paths; use `npm run build && npm run preview` to test the catch-all locally.
 
 ## Config
 
@@ -50,9 +58,10 @@ UMAMI_WEBSITE_ID=… ANALYTICS_PROXY_PATH=… npm run preview
 
 ## Deploy (Coolify)
 
-1. Point **razzosg.ch** / **www.razzosg.ch** at this app.
+1. Point **www.razzosg.ch** and **razzosg.ch** at this app (**FQDN order:** `https://www.razzosg.ch,https://razzosg.ch`; redirect **www**).
 2. Set build args / env: `PUBLIC_UMAMI_WEBSITE_ID`, `PUBLIC_ANALYTICS_PROXY_PATH` (same token as Razzo NFC site).
 3. Set runtime env on the container: `UMAMI_WEBSITE_ID`, `ANALYTICS_PROXY_PATH`, optional `UMAMI_UPSTREAM_URL`.
 4. Build command: `npm run build` — start command: `node server.mjs`.
+5. Proxy / HTTPS / token rotation: [coolify-proxy-operations.md](coolify-proxy-operations.md).
 
 WordPress at `www.razzo.sg` is unchanged.

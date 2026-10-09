@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "node server.mjs",
     "start": "node server.mjs",
-    "test": "node --import tsx --test src/lib/aleno.test.mjs"
+    "test": "node --test lib/fallback-redirect.test.mjs && node --import tsx --test src/lib/aleno.test.mjs"
   },
   "dependencies": {
     "sirv": "^3.0.2"

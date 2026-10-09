@@ -2,6 +2,11 @@ import { createServer } from 'node:http';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sirv from 'sirv';
+import {
+  mainSiteHomeLocation,
+  mainSiteOrigin,
+  shouldKeep404,
+} from './lib/fallback-redirect.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dist = join(__dirname, 'dist');
@@ -121,10 +126,15 @@ createServer(async (req, res) => {
       return;
     }
 
-    await new Promise((resolve, reject) => {
+    await new Promise((resolve) => {
       serve(req, res, () => {
-        res.writeHead(404);
-        res.end('Not Found');
+        if (shouldKeep404(url.pathname, { analyticsToken: token })) {
+          res.writeHead(404);
+          res.end('Not Found');
+        } else {
+          res.writeHead(302, { Location: mainSiteHomeLocation(mainSiteOrigin()) });
+          res.end();
+        }
         resolve();
       });
     });

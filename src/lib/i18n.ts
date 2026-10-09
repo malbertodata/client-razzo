@@ -14,6 +14,10 @@ export type UiCopy = {
   back: string;
   widgetTitle: string;
   metaNav: string;
+  contactNav: string;
+  contactCall: string;
+  contactEmail: string;
+  contactInstagram: string;
   impressum: string;
   agb: string;
   privacy: string;
@@ -28,6 +32,7 @@ export type UiCopy = {
   bookingGroupsModalFields: string;
   bookingGroupsModalOpen: string;
   bookingGroupsModalCancel: string;
+  bookingDetailsToggle: string;
   chaletHoursAria: string;
   chaletHoursLine1: string;
   chaletHoursLine2: string;
@@ -56,6 +61,10 @@ const uiDe: UiCopy = {
   back: 'Zurück',
   widgetTitle: 'Restaurant reservieren',
   metaNav: 'Meta Navigation',
+  contactNav: 'Kontakt',
+  contactCall: 'Anrufen:',
+  contactEmail: 'E-Mail:',
+  contactInstagram: 'Instagram',
   impressum: 'Impressum',
   agb: 'AGB',
   privacy: 'Datenschutz',
@@ -82,6 +91,7 @@ Name:
 Telefonnummer: 
 
 `,
+  bookingDetailsToggle: 'Öffnungszeiten & Details',
   chaletHoursAria: 'Öffnungszeiten Fondue Chalet',
   chaletHoursLine1: 'Di – Fr | 11.30 – 14 Uhr',
   chaletHoursLine2: 'Di – Fr | 17.30 – 22 Uhr',
