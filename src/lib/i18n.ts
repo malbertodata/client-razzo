@@ -9,6 +9,8 @@ export type UiCopy = {
   reserveNav: string;
   bookingTypeNav: string;
   bookNow: string;
+  bookingHeadlineLine1: string;
+  bookingHeadlineLine2: string;
   bookChalet: string;
   bookRestaurant: string;
   back: string;
@@ -56,6 +58,8 @@ const uiDe: UiCopy = {
   reserveNav: 'Reservieren',
   bookingTypeNav: 'Buchungsart',
   bookNow: 'Jetzt reservieren',
+  bookingHeadlineLine1: 'Jetzt',
+  bookingHeadlineLine2: 'reservieren',
   bookChalet: 'Fondue Chalet',
   bookRestaurant: 'Restaurant',
   back: 'Zurück',
