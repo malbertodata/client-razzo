@@ -1,0 +1,932 @@
+---
+import type { CampaignConfig, FonduePageConfig } from '@/lib/campaign';
+import { resolveChaletEmbeddedWidgetUrl, resolveRestaurantWidgetUrl } from '@/lib/aleno';
+import { analyticsScriptSrc, deferredAnalyticsBootScript } from '@/lib/analytics';
+import {
+  groupsEnquiryFieldLabels,
+  groupsEnquiryMailtoHref,
+  htmlLang,
+  legalUrls,
+  switchLocalePath,
+  uiCopy,
+  type Locale,
+} from '@/lib/i18n';
+import FondueLinkIcon from '@/components/FondueLinkIcon.astro';
+
+interface Props {
+  config: CampaignConfig;
+  locale: Locale;
+  pageId: string;
+  page: FonduePageConfig;
+}
+
+const { config, locale, pageId, page } = Astro.props;
+
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID?.trim() || null;
+const analyticsProxyPath = import.meta.env.PUBLIC_ANALYTICS_PROXY_PATH?.trim() || null;
+const scriptSrc = analyticsScriptSrc(analyticsProxyPath);
+const ui = uiCopy(locale);
+const legal = legalUrls(locale);
+const instagramUrl = 'https://www.instagram.com/restaurant.razzo/';
+const alternateLocaleHref = switchLocalePath({
+  locale,
+  pageId,
+  search: Astro.url.searchParams,
+});
+
+const isBooking = page.kind === 'booking';
+const incomingSearch = Astro.url.searchParams;
+const reservationCtx = { incoming: incomingSearch, locale };
+const chaletSeasonFirst = config.chaletFirstAvailableDate?.trim() || '2026-11-03';
+const chaletSeasonLast = config.chaletLastAvailableDate?.trim();
+const chaletWidgetUrl = resolveChaletEmbeddedWidgetUrl(
+  config.chaletBookingUrl,
+  reservationCtx,
+  chaletSeasonFirst,
+  chaletSeasonLast,
+);
+const restaurantWidgetUrl = resolveRestaurantWidgetUrl(config.restaurantWidgetUrl, reservationCtx);
+const groupsEmail = config.groupsEnquiryEmail?.trim() || 'ciao@razzo.sg';
+const groupsMailto = groupsEnquiryMailtoHref({ email: groupsEmail, locale });
+const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
+---
+
+<!doctype html>
+<html lang={htmlLang(locale)}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <title>{config.siteName} — {page.title}</title>
+    {
+      isBooking ? (
+        <>
+          <link rel="dns-prefetch" href="//mytools.aleno.me" />
+          <link rel="preconnect" href="https://mytools.aleno.me" crossorigin />
+          <script src={config.alenoAssets.scriptSrc} is:inline />
+          <link href={config.alenoAssets.styleHref} rel="stylesheet" />
+        </>
+      ) : null
+    }
+    <style is:global>
+      @font-face {
+        font-family: 'Aether A Mono';
+        src: url('/brand/Aether-AMono.woff2') format('woff2');
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        overflow-x: hidden;
+        scrollbar-gutter: stable;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        overflow-x: hidden;
+        background: #000;
+        color: #fff;
+        font-family: 'Aether A Mono', ui-monospace, monospace;
+        -webkit-font-smoothing: antialiased;
+      }
+      .nfc-page {
+        --nfc-logo-gutter: calc(1.25rem + 0.875rem + 20px + 0.75rem);
+        --nfc-lang-gutter: 3.25rem;
+        position: relative;
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+      }
+      @media (min-width: 1024px) {
+        .nfc-page {
+          --nfc-logo-gutter: calc(2.5rem + 2.5rem + 57px + 1rem);
+          --nfc-lang-gutter: 5rem;
+        }
+      }
+      .nfc-brand-plate {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        display: flex;
+        padding-left: 1.25rem; /* pl-5 */
+      }
+      @media (min-width: 1024px) {
+        .nfc-brand-plate {
+          padding-left: 2.5rem; /* lg:pl-10 */
+        }
+      }
+      .nfc-lang-plate {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 20;
+        padding: 1.25rem 1.25rem 0 0; /* header py-5 pr-5 */
+      }
+      @media (min-width: 1024px) {
+        .nfc-lang-plate {
+          padding: 2.5rem 2.5rem 0 0; /* lg:py-10 lg:pr-10 */
+        }
+      }
+      .nfc-brand {
+        z-index: 10;
+        color: inherit;
+        text-decoration: none;
+      }
+      @media (min-width: 1024px) {
+        .nfc-brand {
+          z-index: 30;
+        }
+      }
+      .nfc-brand-frame {
+        display: flex;
+        padding: 0 0.5rem 0 0.375rem; /* pr-2 pl-1.5 */
+      }
+      @media (min-width: 1024px) {
+        .nfc-brand-frame {
+          padding: 0 1.25rem; /* lg:pr-5 lg:pl-5 */
+        }
+      }
+      .nfc-brand-inner {
+        position: relative;
+        z-index: 40;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        min-height: calc(4rem + (540 / 57) * 20px);
+      }
+      @media (min-width: 1024px) {
+        .nfc-brand-inner {
+          width: 57px;
+          min-height: calc(8rem + 540px);
+        }
+      }
+      .nfc-star {
+        position: absolute;
+        top: 1.375rem; /* top-5.5 */
+        left: 50%;
+        width: 0.75rem; /* w-3 */
+        height: 0.75rem;
+        transform: translateX(-50%);
+      }
+      @media (min-width: 1024px) {
+        .nfc-star {
+          top: 2.375rem; /* lg:top-9.5 */
+          width: 1.25rem; /* lg:w-5 */
+          height: 1.25rem;
+        }
+      }
+      .nfc-logo {
+        position: absolute;
+        top: 4rem; /* top-16 */
+        left: 50%;
+        display: block;
+        height: auto;
+        width: 20px;
+        max-width: 20px;
+        object-fit: contain;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateX(-50%) translateY(90%);
+        animation: nfc-logo-enter 1000ms cubic-bezier(0, 0, 0.2, 1) 700ms forwards;
+      }
+      @media (min-width: 1024px) {
+        .nfc-logo {
+          top: 8rem; /* lg:top-32 */
+          width: 57px;
+          max-width: none;
+        }
+      }
+      @keyframes nfc-logo-enter {
+        from {
+          visibility: visible;
+          opacity: 0.1;
+          transform: translateX(-50%) translateY(90%);
+        }
+        to {
+          visibility: visible;
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .nfc-logo {
+          animation: none;
+          visibility: visible;
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+      }
+      .nfc-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+        padding: 2rem var(--nfc-lang-gutter) 1.75rem var(--nfc-logo-gutter);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+      .nfc-body {
+        --fondue-stack-gap: 1.5rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--fondue-stack-gap);
+        width: 100%;
+        min-height: 0;
+      }
+      .fondue-copy {
+        width: min(100%, 22rem);
+        max-width: 100%;
+        text-align: center;
+        line-height: 1.45;
+        letter-spacing: 0.02em;
+      }
+      .fondue-copy h1 {
+        margin: 0 0 0.75rem;
+        font-size: 1.125rem;
+        font-weight: 400;
+      }
+      .fondue-copy p {
+        margin: 0;
+        opacity: 0.85;
+        font-size: 0.875rem;
+      }
+      .fondue-copy p + p {
+        margin-top: 0.625rem;
+      }
+      .fondue-copy a {
+        color: inherit;
+      }
+      .nfc-links {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fondue-stack-gap);
+        width: min(100%, 22rem);
+        max-width: 100%;
+      }
+      .nfc-link-main {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 3.25rem;
+        padding: 1rem 1.25rem;
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .fondue-option-hours {
+        margin: 0;
+        padding: 0 0.25rem;
+        text-align: center;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        letter-spacing: 0.02em;
+        color: oklch(72% 0.006 264.542);
+        transition: color 0.15s ease;
+        pointer-events: none;
+      }
+      .fondue-option-hours > span {
+        display: block;
+      }
+      .fondue-option-hours > span + span {
+        margin-top: 0.25rem;
+      }
+      .fondue-option-hours-season {
+        margin-bottom: 0.35rem;
+      }
+      .fondue-option-hours-note {
+        margin-bottom: 0.5rem;
+        white-space: nowrap;
+        font-size: clamp(0.6875rem, 2.8vw, 0.875rem);
+      }
+      .nfc-links--aligned .nfc-link-label {
+        text-align: center;
+      }
+      .fondue-groups {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fondue-stack-gap);
+        width: min(100%, 22rem);
+        max-width: 100%;
+      }
+      .fondue-divider {
+        margin: 0;
+        border: none;
+        border-top: 1.5px solid rgba(255, 255, 255, 0.5);
+        width: 100%;
+        flex-shrink: 0;
+      }
+      .fondue-groups .nfc-link {
+        justify-content: center;
+        min-height: 3.25rem;
+        font-size: 1.0625rem;
+        color: oklch(72% 0.006 264.542);
+        border-color: rgba(255, 255, 255, 0.38);
+      }
+      .fondue-groups .nfc-link:hover,
+      .fondue-groups .nfc-link:focus-visible {
+        color: oklch(82% 0.006 264.542);
+        border-color: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      body.fondue-groups-open {
+        overflow: hidden;
+      }
+      .fondue-groups-sheet {
+        position: fixed;
+        inset: 0;
+        z-index: 210;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 0.625rem;
+        padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+      }
+      .fondue-groups-sheet[hidden] {
+        display: none;
+      }
+      .fondue-groups-sheet-backdrop {
+        position: absolute;
+        inset: 0;
+        border: none;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.72);
+        cursor: pointer;
+      }
+      .fondue-groups-sheet-panel {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 24rem);
+        max-height: calc(
+          100dvh - 1.25rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
+        );
+        overflow: visible;
+        padding: 0.875rem 1rem 0.75rem;
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
+        background: #000;
+        color: inherit;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+          'Courier New', monospace;
+        font-size: 0.75rem;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+      }
+      .fondue-groups-sheet-title {
+        margin: 0 0 0.5rem;
+        font: inherit;
+        font-size: 0.8125rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #fff;
+      }
+      .fondue-groups-sheet-intro {
+        margin: 0 0 0.625rem;
+        color: oklch(72% 0.006 264.542);
+      }
+      .fondue-groups-sheet-meta {
+        margin: 0 0 0.625rem;
+        display: grid;
+        gap: 0.35rem;
+      }
+      .fondue-groups-sheet-row {
+        display: grid;
+        grid-template-columns: 4.75rem 1fr;
+        gap: 0.375rem;
+        align-items: baseline;
+      }
+      .fondue-groups-sheet-row dt {
+        margin: 0;
+        color: oklch(58% 0.006 264.542);
+      }
+      .fondue-groups-sheet-row dd {
+        margin: 0;
+        word-break: break-word;
+        color: oklch(88% 0.006 264.542);
+      }
+      .fondue-groups-sheet-fields-title {
+        margin: 0 0 0.35rem;
+        color: oklch(58% 0.006 264.542);
+      }
+      .fondue-groups-sheet-fields {
+        margin: 0 0 0.75rem;
+        padding: 0.5rem 0.625rem;
+        list-style: none;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.04);
+        columns: 2;
+        column-gap: 0.75rem;
+      }
+      .fondue-groups-sheet-fields li {
+        break-inside: avoid;
+      }
+      .fondue-groups-sheet-fields li + li {
+        margin-top: 0.2rem;
+      }
+      .fondue-groups-sheet-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .fondue-groups-sheet-actions .nfc-link {
+        font-size: 0.9375rem;
+        padding: 0.75rem 1rem;
+        min-height: 0;
+      }
+      .fondue-groups-sheet-actions .nfc-link--ghost {
+        border-color: rgba(255, 255, 255, 0.28);
+        color: oklch(72% 0.006 264.542);
+      }
+      .fondue-groups-sheet-actions .nfc-link--ghost:hover,
+      .fondue-groups-sheet-actions .nfc-link--ghost:focus-visible {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.45);
+      }
+      @media (min-width: 480px) {
+        .fondue-groups-sheet {
+          align-items: center;
+        }
+      }
+      .nfc-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.625rem;
+        padding: 1rem 1.25rem;
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
+        border-radius: 0;
+        color: inherit;
+        text-decoration: none;
+        letter-spacing: 0.02em;
+        transition: background 0.15s ease, border-color 0.15s ease;
+        background: transparent;
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: inherit;
+        font-size: 1.125rem;
+        width: 100%;
+      }
+      .nfc-link:hover,
+      .nfc-link:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #fff;
+        outline: none;
+      }
+      .nfc-link.nfc-link--booking {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+        min-height: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+      }
+      .nfc-link.nfc-link--booking:hover,
+      .nfc-link.nfc-link--booking:focus-visible {
+        background: transparent;
+        border: none;
+      }
+      .nfc-link.nfc-link--booking:hover .nfc-link-main,
+      .nfc-link.nfc-link--booking:focus-visible .nfc-link-main {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #fff;
+      }
+      .nfc-link.nfc-link--booking:hover .fondue-option-hours,
+      .nfc-link.nfc-link--booking:focus-visible .fondue-option-hours {
+        color: #fff;
+      }
+      .nfc-link-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+        font-size: 1.25rem;
+        line-height: 1;
+        letter-spacing: 0;
+      }
+      .nfc-link-icon .fondue-link-emoji {
+        display: block;
+      }
+      .nfc-link-label {
+        text-align: center;
+        line-height: 1.35;
+      }
+      .fondue-widget-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        flex-direction: column;
+        background: #000;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+          env(safe-area-inset-left);
+      }
+      .fondue-widget-overlay[hidden] {
+        display: none;
+      }
+      .fondue-widget-back {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        flex-shrink: 0;
+        align-self: flex-start;
+        margin: 0.75rem 1rem;
+        padding: 0.5rem 0;
+        border: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+      }
+      .fondue-widget-back:hover,
+      .fondue-widget-back:focus-visible {
+        opacity: 0.85;
+        outline: none;
+      }
+      .fondue-widget-frame {
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        max-width: 32rem;
+        margin: 0 auto;
+        padding: 0 0 0.75rem;
+      }
+      .fondue-widget {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: min(720px, calc(100dvh - 3.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+        border: none;
+        background: #fff;
+      }
+      body.fondue-widget-open {
+        overflow: hidden;
+      }
+      .nfc-lang {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .nfc-lang li {
+        display: flex;
+        height: 1.75rem;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem;
+      }
+      .nfc-lang-current,
+      .nfc-lang a {
+        font-size: 1rem;
+        line-height: 1;
+        text-transform: uppercase;
+        text-underline-offset: 8px;
+        color: #fff;
+      }
+      @media (min-width: 1024px) {
+        .nfc-lang-current,
+        .nfc-lang a {
+          font-size: clamp(0.820137rem, 0.2534vw + 0.76942rem, 999rem);
+        }
+      }
+      .nfc-lang-current {
+        font-weight: 700;
+        text-decoration: underline;
+      }
+      .nfc-lang a {
+        position: relative;
+        font-weight: 400;
+        text-decoration: none;
+      }
+      .nfc-lang a::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 0;
+        height: 2px;
+        background-color: currentColor;
+        transition: width 0.3s ease;
+      }
+      .nfc-lang a:hover::after {
+        width: 100%;
+      }
+      .nfc-site-footer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        margin-top: 2rem;
+        width: 100%;
+        padding: 0 0.75rem;
+        box-sizing: border-box;
+      }
+      .nfc-footer-instagram {
+        display: flex;
+        margin-bottom: 4rem;
+        color: oklch(96.7% 0.003 264.542);
+        line-height: 0;
+        transition: opacity 0.15s ease;
+      }
+      .nfc-footer-instagram:hover {
+        opacity: 0.85;
+      }
+      .nfc-footer-instagram svg {
+        width: 2.75rem;
+        height: 2.75rem;
+        stroke: currentColor;
+        fill: none;
+      }
+      .nfc-footer-instagram svg circle:last-of-type {
+        fill: currentColor;
+        stroke: none;
+      }
+      .nfc-footer {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(0.625rem, 3.5vw, 1.25rem);
+        width: 100%;
+        max-width: 22rem;
+        font-size: clamp(0.820137rem, 0.2534vw + 0.76942rem, 999rem);
+        font-weight: 400;
+        line-height: clamp(1.06618rem, calc(1.39555rem + 0.003294 * (100vw - 120rem)), 999rem);
+        text-align: center;
+      }
+      .nfc-footer a {
+        position: relative;
+        flex-shrink: 0;
+        white-space: nowrap;
+        color: oklch(96.7% 0.003 264.542);
+        text-decoration: none;
+        text-underline-offset: 4px;
+      }
+      .nfc-footer a::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 0;
+        height: 2px;
+        background-color: currentColor;
+        transition: width 0.3s ease;
+      }
+      .nfc-footer a:hover::after {
+        width: 100%;
+      }
+    </style>
+    {
+      umamiWebsiteId && scriptSrc ? (
+        <script is:inline set:html={deferredAnalyticsBootScript(scriptSrc, umamiWebsiteId)} />
+      ) : null
+    }
+  </head>
+  <body data-fondue-page={pageId}>
+    <main class="nfc-page">
+      <div class="nfc-brand-plate">
+        <a class="nfc-brand" href="https://www.razzo.sg/" aria-label={config.siteName}>
+          <div class="nfc-brand-frame">
+            <div class="nfc-brand-inner">
+              <svg
+                class="nfc-star"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 34.5 32.4"
+                aria-hidden="true"
+              >
+                <path
+                  fill="#fff"
+                  d="M28.2,17.1c-.8.8-1.8,1.6-2.5,2.5-.6.7-.4,1.4-.3,2.3.3,2.5.9,4.9,1.2,7.4,0,.8-.3,1.2-1.1.9-2.4-1.1-4.7-2.5-7-3.6-.4-.2-.8-.4-1.2-.4-.3,0-.9.2-1.2.3-2.3,1.1-4.5,2.4-6.8,3.5-.7.3-1.5.5-1.6-.5,0-.8.3-2.2.4-3.1.3-1.7.7-3.5.8-5.2.1-1.2-.4-1.6-1.1-2.4-1.6-1.6-3.4-3.2-4.9-4.9-.3-.3-.7-.8-.5-1.3.2-.5,1.2-.6,1.6-.7,2.3-.4,4.7-.6,7-1.1,1.2-.2,1.5-.7,2-1.7,1.1-2.1,2.1-4.3,3.2-6.3.3-.5.7-1.2,1.3-.8.4.3.8,1.3,1.1,1.7,1,1.9,1.9,4,3,5.9.4.8.9,1.1,1.8,1.2,2.5.5,5.1.7,7.6,1.2.5.1,1.2.3,1.1.9,0,.5-1.2,1.5-1.6,1.8-.7.7-1.5,1.5-2.2,2.2"
+                ></path>
+              </svg>
+              <img class="nfc-logo" src="/brand/logo.svg" alt="" width="57" height="540" />
+            </div>
+          </div>
+        </a>
+      </div>
+      <div class="nfc-lang-plate">
+        <ul class="nfc-lang" aria-label={ui.langLabel}>
+          <li>
+            {
+              locale === 'de' ? (
+                <span class="nfc-lang-current" lang="de">de</span>
+              ) : (
+                <a href={alternateLocaleHref} hreflang="de" lang="de">de</a>
+              )
+            }
+          </li>
+          <li>
+            {
+              locale === 'en' ? (
+                <span class="nfc-lang-current" lang="en">en</span>
+              ) : (
+                <a href={alternateLocaleHref} hreflang="en" lang="en">en</a>
+              )
+            }
+          </li>
+        </ul>
+      </div>
+      <div class="nfc-content">
+        <div class="nfc-body">
+          <div class="fondue-copy">
+            <h1>{page.headline}</h1>
+            {page.intro.trim() ? <p>{page.intro}</p> : null}
+          </div>
+          {
+            isBooking ? (
+              <>
+                <nav class="nfc-links nfc-links--aligned" aria-label={ui.bookingTypeNav}>
+                  <button
+                    type="button"
+                    class="nfc-link nfc-link--booking"
+                    data-fondue-link="chalet"
+                    data-fondue-show-widget
+                    data-widget-src={chaletWidgetUrl}
+                    data-chalet-season-first={chaletSeasonFirst}
+                    data-chalet-season-last={chaletSeasonLast ?? ''}
+                  >
+                    <span class="nfc-link-main">
+                      <span class="nfc-link-icon">
+                        <FondueLinkIcon id="chalet" />
+                      </span>
+                      <span class="nfc-link-label">{ui.bookChalet}</span>
+                    </span>
+                    <span class="fondue-option-hours">
+                      <span class="fondue-option-hours-season">{ui.chaletSeasonNote}</span>
+                      <span>{ui.chaletHoursLine1}</span>
+                      <span>{ui.chaletHoursLine2}</span>
+                      <span>{ui.chaletHoursLine3}</span>
+                      <span>{ui.chaletHoursLine4}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    class="nfc-link nfc-link--booking"
+                    data-fondue-link="restaurant"
+                    data-fondue-show-widget
+                    data-widget-src={restaurantWidgetUrl}
+                  >
+                    <span class="nfc-link-main">
+                      <span class="nfc-link-icon">
+                        <FondueLinkIcon id="restaurant" />
+                      </span>
+                      <span class="nfc-link-label">{ui.bookRestaurant}</span>
+                    </span>
+                    <span class="fondue-option-hours">
+                      <span class="fondue-option-hours-note">{ui.restaurantMenuNote}</span>
+                      <span>{ui.restaurantHoursLine1}</span>
+                      <span>{ui.restaurantHoursLine2}</span>
+                      <span>{ui.restaurantHoursLine3}</span>
+                    </span>
+                  </button>
+                </nav>
+                <nav class="fondue-groups" aria-label={ui.bookingGroupsEnquiryNav}>
+                  <hr class="fondue-divider" />
+                  <button
+                    type="button"
+                    class="nfc-link"
+                    data-groups-sheet-open
+                    data-mailto={groupsMailto}
+                    data-fondue-link="groups"
+                  >
+                    <span class="nfc-link-label">{ui.bookingGroupsEnquiryLabel}</span>
+                  </button>
+                </nav>
+                <div
+                  class="fondue-groups-sheet"
+                  id="fondue-groups-sheet"
+                  hidden
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="fondue-groups-sheet-title"
+                >
+                  <button
+                    type="button"
+                    class="fondue-groups-sheet-backdrop"
+                    data-groups-sheet-backdrop
+                    tabindex="-1"
+                    aria-label={ui.bookingGroupsModalCancel}
+                  />
+                  <div class="fondue-groups-sheet-panel">
+                    <h2 class="fondue-groups-sheet-title" id="fondue-groups-sheet-title">
+                      {ui.bookingGroupsEnquiryLabel}
+                    </h2>
+                    <p class="fondue-groups-sheet-intro">{ui.bookingGroupsModalIntro}</p>
+                    <dl class="fondue-groups-sheet-meta">
+                      <div class="fondue-groups-sheet-row">
+                        <dt>{ui.bookingGroupsModalTo}</dt>
+                        <dd>{groupsEmail}</dd>
+                      </div>
+                      <div class="fondue-groups-sheet-row">
+                        <dt>{ui.bookingGroupsModalSubject}</dt>
+                        <dd>{ui.bookingGroupsEnquirySubject}</dd>
+                      </div>
+                    </dl>
+                    <p class="fondue-groups-sheet-fields-title">{ui.bookingGroupsModalFields}</p>
+                    <ul class="fondue-groups-sheet-fields">
+                      {groupsFieldLabels.map((label) => (
+                        <li>{label}</li>
+                      ))}
+                    </ul>
+                    <div class="fondue-groups-sheet-actions">
+                      <button type="button" class="nfc-link" data-groups-sheet-send>
+                        {ui.bookingGroupsModalOpen}
+                      </button>
+                      <button
+                        type="button"
+                        class="nfc-link nfc-link--ghost"
+                        data-groups-sheet-close
+                      >
+                        {ui.bookingGroupsModalCancel}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="fondue-widget-overlay" id="fondue-widget-overlay" hidden>
+                  <button type="button" class="fondue-widget-back" id="fondue-widget-close">
+                    {ui.back}
+                  </button>
+                  <div class="fondue-widget-frame">
+                    <iframe
+                      class="fondue-widget"
+                      id="fondue-aleno-widget"
+                      title={ui.widgetTitle}
+                      data-widget-src={restaurantWidgetUrl}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : null
+          }
+        </div>
+        <div class="nfc-site-footer">
+          <a
+            class="nfc-footer-instagram"
+            href={instagramUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke-width="1.5"></rect>
+              <circle cx="12" cy="12" r="4" stroke-width="1.5"></circle>
+              <circle cx="17.2" cy="6.8" r="1"></circle>
+            </svg>
+          </a>
+          <nav class="nfc-footer" aria-label={ui.metaNav}>
+            <a href={legal.impressumUrl}>{ui.impressum}</a>
+            <a href={legal.agbUrl}>{ui.agb}</a>
+            <a href={legal.privacyUrl}>{ui.privacy}</a>
+          </nav>
+        </div>
+      </div>
+    </main>
+    {
+      isBooking ? (
+        <script>
+          import '../scripts/fondue-booking-widget.ts';
+          import '../scripts/fondue-groups-sheet.ts';
+        </script>
+      ) : null
+    }
+    <script is:inline>
+      document.querySelectorAll('[data-fondue-link]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const id = el.getAttribute('data-fondue-link');
+          const track = window.umami?.track;
+          if (!id || typeof track !== 'function') return;
+          try {
+            track('fondue_click', { link: id });
+          } catch {
+            /* optional */
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

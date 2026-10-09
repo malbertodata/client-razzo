@@ -1,0 +1,49 @@
+{
+  "ui": {
+    "langLabel": "Language",
+    "reserveNav": "Book",
+    "bookingTypeNav": "Booking type",
+    "bookNow": "Book now",
+    "bookChalet": "Fondue Chalet",
+    "bookRestaurant": "Restaurant",
+    "back": "Back",
+    "widgetTitle": "Book restaurant",
+    "metaNav": "Meta navigation",
+    "impressum": "Imprint",
+    "agb": "Terms",
+    "privacy": "Privacy",
+    "chaletSeasonNote": "November through January only",
+    "bookingGroupsEnquiryLabel": "Groups of 9 or more",
+    "bookingGroupsEnquiryNav": "Group enquiry by email",
+    "bookingGroupsEnquirySubject": "Reservation enquiry",
+    "bookingGroupsModalIntro": "Your mail app will open with a template to complete.",
+    "bookingGroupsModalTo": "To",
+    "bookingGroupsModalSubject": "Subject",
+    "bookingGroupsModalFields": "Please add:",
+    "bookingGroupsModalOpen": "Open email",
+    "bookingGroupsModalCancel": "Cancel",
+    "bookingGroupsEnquiryBody": "Date: \n\nTime: \n\nGroup size: \n\nFondue Chalet or restaurant: \n\nName: \n\nPhone number: \n\n",
+    "chaletHoursAria": "Fondue Chalet opening hours",
+    "chaletHoursLine1": "Tue – Fri | 11.30 – 14",
+    "chaletHoursLine2": "Tue – Fri | 17.30 – 22",
+    "chaletHoursLine3": "Sat | 11.00 – 22.00",
+    "chaletHoursLine4": "Sun closed",
+    "restaurantHoursAria": "Restaurant opening hours",
+    "restaurantHoursLine1": "Mon – Wed | 9 – 22",
+    "restaurantHoursLine2": "Thu – Sat | 9 – 23",
+    "restaurantHoursLine3": "Sun closed",
+    "restaurantMenuNote": "À la carte — no fondue in the restaurant"
+  },
+  "legal": {
+    "privacyUrl": "https://www.razzo.sg/en/privacy/",
+    "impressumUrl": "https://www.razzo.sg/en/imprint/",
+    "agbUrl": "https://www.razzo.sg/en/terms-and-conditions/"
+  },
+  "pages": {
+    "buchen": {
+      "title": "Book",
+      "headline": "Book now",
+      "intro": ""
+    }
+  }
+}

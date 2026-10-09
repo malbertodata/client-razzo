@@ -1,0 +1,27 @@
+---
+import FondueLayout from '@/layouts/FondueLayout.astro';
+import { allPageIds, campaign } from '@/lib/campaign';
+import { localizedPage, publicPageSlug, resolveInternalPageId, type Locale } from '@/lib/i18n';
+
+const locale: Locale = 'en';
+
+export function getStaticPaths() {
+  return allPageIds().map((internalId) => ({
+    params: { page: publicPageSlug('en', internalId) },
+  }));
+}
+
+const raw = Astro.params.page ?? '';
+const pageId = resolveInternalPageId(locale, raw);
+
+if (!pageId) {
+  return new Response('Not Found', { status: 404, statusText: 'Not Found' });
+}
+
+const page = localizedPage(locale, pageId);
+if (!page) {
+  return new Response('Not Found', { status: 404, statusText: 'Not Found' });
+}
+---
+
+<FondueLayout config={campaign} locale={locale} pageId={pageId} page={page} />

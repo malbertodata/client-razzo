@@ -1,0 +1,31 @@
+{
+  "siteName": "Razzo",
+  "publicHosts": ["razzosg.ch", "www.razzosg.ch"],
+  "privacyUrl": "https://www.razzo.sg/datenschutz/",
+  "campaign": {
+    "name": "Fondue Chalet 2026",
+    "mediumQr": "qr",
+    "mediumLetter": "letter"
+  },
+  "alenoAssets": {
+    "scriptSrc": "https://mytools.aleno.me/reservations/v2.0/reservations.js",
+    "styleHref": "https://mytools.aleno.me/reservations/v2.0/reservations.css"
+  },
+  "restaurantWidgetUrl": "https://mytools.aleno.me/reservations/v2.0/reservations.html?k=eyJrIjoid2l2dTVrM2lsNm15cnBiOWlwdzZ4bmViajhycnVkaWRpZ280bGZwODBsbzlhNGlweTEiLCJyIjoiNGlucEYySGlDY2NuOTc4anAiLCJzIjoiaHR0cHM6Ly9teXRvb2xzLmFsZW5vLm1lLyJ9",
+  "chaletBookingUrl": "https://mytools.aleno.me/reservations/v2.0/reservations.html?k=eyJrIjoid2l2dTVrM2lsNm15cnBiOWlwdzZ4bmViajhycnVkaWRpZ280bGZwODBsbzlhNGlweTEiLCJyIjoiNGlucEYySGlDY2NuOTc4anAiLCJzIjoiaHR0cHM6Ly9teXRvb2xzLmFsZW5vLm1lLyJ9&shifts=Chalet+razzo",
+  "chaletFirstAvailableDate": "2026-11-03",
+  "chaletLastAvailableDate": "2027-01-31",
+  "groupsEnquiryEmail": "ciao@razzo.sg",
+  "pages": {
+    "buchen": {
+      "kind": "booking",
+      "title": "Reservieren",
+      "headline": "Jetzt reservieren",
+      "intro": "",
+      "utm": {}
+    }
+  },
+  "bookingPath": "reservieren",
+  "bookingPathEn": "book",
+  "defaultLandingPath": "buchen"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "client-razzo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4321",
+    "build": "astro build",
+    "preview": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --import tsx --test src/lib/aleno.test.mjs"
+  },
+  "dependencies": {
+    "sirv": "^3.0.2"
+  },
+  "devDependencies": {
+    "astro": "^5.7.10",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

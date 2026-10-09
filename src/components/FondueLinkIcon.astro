@@ -1,0 +1,11 @@
+---
+interface Props {
+  id: 'chalet' | 'restaurant';
+}
+
+const { id } = Astro.props;
+
+const emoji = id === 'chalet' ? '🫕' : '🍽️';
+---
+
+<span class="fondue-link-emoji" aria-hidden="true">{emoji}</span>
