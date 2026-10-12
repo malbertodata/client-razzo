@@ -39,7 +39,8 @@ createServer(async (req, res) => {
     await new Promise((resolve) => {
       serve(req, res, () => {
         if (shouldKeep404(url.pathname, { analyticsToken: token })) {
-          res.writeHead(404);
+          // Assets can 404 briefly while a deploy swaps containers; never let the CDN cache that.
+          res.writeHead(404, { 'Cache-Control': 'no-store' });
           res.end('Not Found');
         } else {
           res.writeHead(302, { Location: mainSiteHomeLocation(mainSiteOrigin()) });

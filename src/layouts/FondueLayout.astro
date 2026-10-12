@@ -1388,7 +1388,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
             select:focus
           ) {
           align-self: start;
-          margin-top: 1.5rem;
+          margin-top: max(1.5rem, env(safe-area-inset-top));
           max-height: calc(100dvh - 3rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
         }
       }
