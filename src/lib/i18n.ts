@@ -55,6 +55,7 @@ export type UiCopy = {
   bookingGroupsFormEmailInvalid: string;
   bookingGroupsFormPhoneInvalid: string;
   bookingGroupsFormPhone: string;
+  bookingGroupsFormPhoneCode: string;
   bookingGroupsFormNotes: string;
   bookingGroupsFormContinue: string;
   bookingGroupsFormBack: string;
@@ -137,9 +138,9 @@ const uiDe: UiCopy = {
   bookingGroupsFormEmail: 'E-Mail:',
   bookingGroupsFormEmailInvalid:
     'Bitte eine gültige E-Mail-Adresse eingeben (z. B. name@beispiel.ch).',
-  bookingGroupsFormPhoneInvalid:
-    'Bitte eine gültige Telefonnummer eingeben (z. B. 079 … oder +41 …).',
+  bookingGroupsFormPhoneInvalid: 'Bitte eine gültige Telefonnummer eingeben (z. B. 79 123 45 67).',
   bookingGroupsFormPhone: 'Telefon:',
+  bookingGroupsFormPhoneCode: 'Ländervorwahl',
   bookingGroupsFormNotes: 'Anmerkungen:',
   bookingGroupsFormContinue: 'Weiter',
   bookingGroupsFormBack: 'Zurück',

@@ -10,9 +10,12 @@ import {
 } from '@/lib/aleno';
 import { trackUmamiEvent } from '@/lib/analytics';
 import {
+  composeGroupsEnquiryPhone,
+  GROUPS_ENQUIRY_DEFAULT_PHONE_CODE,
   isValidGroupsEnquiryEmail,
   isValidGroupsEnquiryPhone,
   normalizeGroupsEnquiryPhone,
+  splitGroupsEnquiryPhone,
 } from '@/lib/groups-enquiry-validation';
 import type { GroupsEnquiryVenue, Locale } from '@/lib/i18n';
 import {
@@ -32,6 +35,7 @@ const form = document.querySelector<HTMLFormElement>('[data-groups-form]');
 const nameInput = form?.querySelector<HTMLInputElement>('#fondue-groups-name');
 const emailInput = form?.querySelector<HTMLInputElement>('#fondue-groups-email');
 const phoneInput = form?.querySelector<HTMLInputElement>('#fondue-groups-phone');
+const phoneCodeSelect = form?.querySelector<HTMLSelectElement>('#fondue-groups-phone-code');
 const notesInput = form?.querySelector<HTMLTextAreaElement>('#fondue-groups-notes');
 const step1Panel = form?.querySelector<HTMLElement>('[data-groups-step="1"]');
 const step2Panel = form?.querySelector<HTMLElement>('[data-groups-step="2"]');
@@ -451,16 +455,30 @@ function groupsEnquiryPhoneInvalidMessage(): string {
 
 function syncPhoneInputFromAutofill() {
   if (!phoneInput) return;
+  const split = phoneCodeSelect ? splitGroupsEnquiryPhone(phoneInput.value) : null;
+  if (split && phoneCodeSelect) {
+    phoneCodeSelect.value = split.code;
+    phoneInput.value = split.national;
+    return;
+  }
   const normalized = normalizeGroupsEnquiryPhone(phoneInput.value);
   if (normalized !== phoneInput.value) {
     phoneInput.value = normalized;
   }
 }
 
-function validatePhoneInput(): boolean {
+function composedPhoneValue(): string {
+  if (!phoneInput) return '';
+  return composeGroupsEnquiryPhone(
+    phoneCodeSelect?.value || GROUPS_ENQUIRY_DEFAULT_PHONE_CODE,
+    phoneInput.value,
+  );
+}
+
+function validatePhoneInput(syncValue = true): boolean {
   if (!phoneInput) return true;
-  syncPhoneInputFromAutofill();
-  const value = phoneInput.value.trim();
+  if (syncValue) syncPhoneInputFromAutofill();
+  const value = composedPhoneValue();
   if (!value) {
     phoneInput.setCustomValidity('');
     return true;
@@ -489,7 +507,7 @@ function validateEmailInput(): boolean {
 }
 
 function setContactFieldsEnabled(enabled: boolean) {
-  for (const field of [nameInput, emailInput, phoneInput, notesInput]) {
+  for (const field of [nameInput, emailInput, phoneInput, phoneCodeSelect, notesInput]) {
     if (!field) continue;
     field.disabled = !enabled;
   }
@@ -722,7 +740,15 @@ emailInput?.addEventListener('input', () => {
 });
 
 // iOS Safari AutoFill may set the value after (or without) dispatching input/change.
-function schedulePhoneAutofillSync() {
+function schedulePhoneAutofillSync(event?: Event) {
+  // Leave keystrokes alone: "+4…" must not jump into the picker and spaces must stay typeable.
+  const typing =
+    event instanceof InputEvent &&
+    (event.inputType.startsWith('insertText') || event.inputType.startsWith('delete'));
+  if (typing) {
+    validatePhoneInput(false);
+    return;
+  }
   queueMicrotask(() => validatePhoneInput());
   requestAnimationFrame(() => validatePhoneInput());
   window.setTimeout(() => validatePhoneInput(), 150);
@@ -735,6 +761,8 @@ for (const type of ['input', 'change', 'blur', 'animationstart'] as const) {
 for (const field of [nameInput, emailInput, notesInput]) {
   field?.addEventListener('focus', schedulePhoneAutofillSync);
 }
+
+phoneCodeSelect?.addEventListener('change', () => validatePhoneInput());
 
 groupSizeInput?.addEventListener('input', () => {
   groupSizeSelected = true;
@@ -784,7 +812,7 @@ form?.addEventListener('submit', async (event) => {
     groupSize: groupSizeInput?.value.trim() ?? '',
     name: String(data.get('name') ?? '').trim(),
     email: String(data.get('email') ?? '').trim(),
-    phone: String(data.get('phone') ?? '').trim(),
+    phone: composedPhoneValue(),
     notes: String(data.get('notes') ?? '').trim(),
     utm: readGroupsUtmAttribution(),
   };

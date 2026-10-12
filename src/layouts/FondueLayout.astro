@@ -14,6 +14,10 @@ import {
   type Locale,
 } from '@/lib/i18n';
 import FondueLinkIcon from '@/components/FondueLinkIcon.astro';
+import {
+  GROUPS_ENQUIRY_DEFAULT_PHONE_CODE,
+  GROUPS_ENQUIRY_PHONE_COUNTRIES,
+} from '@/lib/groups-enquiry-validation';
 
 interface Props {
   config: CampaignConfig;
@@ -928,6 +932,16 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         .fondue-groups-field textarea {
           font-size: 1rem;
         }
+      }
+      .fondue-groups-phone-row {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        gap: 0.375rem;
+      }
+      .fondue-groups-field .fondue-groups-phone-row select {
+        width: auto;
+        padding-inline: 0.5rem;
+        font-variant-numeric: tabular-nums;
       }
       .fondue-groups-field input:-webkit-autofill,
       .fondue-groups-field input:-webkit-autofill:hover,
@@ -2053,15 +2067,34 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                 </p>
                 <p class="fondue-groups-field">
                   <label for="fondue-groups-phone">{ui.bookingGroupsFormPhone}</label>
-                  <input
-                    id="fondue-groups-phone"
-                    name="phone"
-                    type="tel"
-                    required
-                    disabled
-                    autocomplete="tel"
-                    inputmode="tel"
-                  />
+                  <span class="fondue-groups-phone-row">
+                    <select
+                      id="fondue-groups-phone-code"
+                      name="phoneCode"
+                      disabled
+                      autocomplete="tel-country-code"
+                      aria-label={ui.bookingGroupsFormPhoneCode}
+                    >
+                      {GROUPS_ENQUIRY_PHONE_COUNTRIES.map(({ iso, flag, code }) => (
+                        <option
+                          value={code}
+                          data-iso={iso}
+                          selected={code === GROUPS_ENQUIRY_DEFAULT_PHONE_CODE}
+                        >
+                          {`${flag} ${code}`}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      id="fondue-groups-phone"
+                      name="phone"
+                      type="text"
+                      required
+                      disabled
+                      autocomplete="tel"
+                      inputmode="tel"
+                    />
+                  </span>
                 </p>
                 <p class="fondue-groups-field">
                   <label for="fondue-groups-email">{ui.bookingGroupsFormEmail}</label>
