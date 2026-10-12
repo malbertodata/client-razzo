@@ -136,13 +136,26 @@ export function validateGroupsEnquiryPayload(raw: unknown):
   };
 }
 
-function groupsEnquiryEmailIntroLine(utm: GroupsEnquiryUtmAttribution): string {
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function groupsEnquiryEmailIntro(utm: GroupsEnquiryUtmAttribution): { text: string; html: string } {
   const ui = uiCopy('de');
   const channel = formatGroupsEnquiryUtmChannelLabel(utm);
   if (!channel) {
-    return ui.bookingGroupsEnquiryEmailIntro;
+    const text = ui.bookingGroupsEnquiryEmailIntro;
+    return { text, html: escapeHtml(text) };
   }
-  return ui.bookingGroupsEnquiryEmailIntroVia.replace('{channel}', channel);
+  const [before, after = ''] = ui.bookingGroupsEnquiryEmailIntroVia.split('{channel}');
+  return {
+    text: `${before}${channel}${after}`,
+    html: `${escapeHtml(before)}<u>${escapeHtml(channel)}</u>${escapeHtml(after)}`,
+  };
 }
 
 async function sendViaResend(values: GroupsEnquiryRequest): Promise<void> {
@@ -157,8 +170,8 @@ async function sendViaResend(values: GroupsEnquiryRequest): Promise<void> {
     'ciao@razzosg.ch';
   const toAddress = process.env.GROUPS_ENQUIRY_TO?.trim() || 'markusalbert@me.com';
 
-  const intro = groupsEnquiryEmailIntroLine(values.utm ?? normalizeGroupsEnquiryUtmInput(null));
-  const { text, html } = formatGroupsEnquiryMailBodies('de', values, intro);
+  const intro = groupsEnquiryEmailIntro(values.utm ?? normalizeGroupsEnquiryUtmInput(null));
+  const { text, html } = formatGroupsEnquiryMailBodies('de', values, intro.text, intro.html);
   const subject = formatGroupsEnquiryMailSubject('de', values);
 
   const res = await fetch('https://api.resend.com/emails', {

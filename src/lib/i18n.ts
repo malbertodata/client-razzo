@@ -273,10 +273,17 @@ function escapeHtml(value: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** `YYYY-MM-DD` → `DD.MM.YYYY`; other formats are returned unchanged. */
+export function formatGroupsEnquiryDate(isoDate: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate.trim());
+  return match ? `${match[3]}.${match[2]}.${match[1]}` : isoDate;
+}
+
 export function formatGroupsEnquiryMailBodies(
   locale: Locale,
   values: GroupsEnquiryFormValues,
   introLine?: string,
+  introHtml?: string,
 ): { text: string; html: string } {
   const ui = uiCopy(locale);
   const intro = introLine?.trim() || ui.bookingGroupsEnquiryEmailIntro;
@@ -285,7 +292,7 @@ export function formatGroupsEnquiryMailBodies(
 
   const detailLines = [
     `${groupsEnquiryFieldLabel(ui.bookingGroupsFormVenue)}: ${venueLabel}`,
-    `${groupsEnquiryFieldLabel(ui.bookingGroupsFormDate)}: ${values.date}`,
+    `${groupsEnquiryFieldLabel(ui.bookingGroupsFormDate)}: ${formatGroupsEnquiryDate(values.date)}`,
     `${groupsEnquiryFieldLabel(ui.bookingGroupsFormTime)}: ${values.time}`,
     `${groupsEnquiryFieldLabel(ui.bookingGroupsFormGroupSize)}: ${values.groupSize}`,
     `${groupsEnquiryFieldLabel(ui.bookingGroupsFormNotes)}: ${notesDisplay}`,
@@ -312,7 +319,7 @@ export function formatGroupsEnquiryMailBodies(
   const htmlContact = contactLines.map((line) => escapeHtml(line)).join('<br>\n');
 
   const html = [
-    `<p>${escapeHtml(intro)}</p>`,
+    `<p>${introHtml?.trim() || escapeHtml(intro)}</p>`,
     `<p><b>${escapeHtml(ui.bookingGroupsEnquiryEmailContactHeading)}</b><br>`,
     htmlContact,
     `</p>`,
@@ -334,7 +341,7 @@ export function formatGroupsEnquiryMailSubject(
   values: GroupsEnquiryFormValues,
 ): string {
   const ui = uiCopy(locale);
-  return `${ui.bookingGroupsEnquirySubjectPrefix} | ${values.date} | ${values.time} | ${values.groupSize} ${ui.bookingGroupsEnquirySubjectPeopleUnit}`;
+  return `${ui.bookingGroupsEnquirySubjectPrefix} | ${formatGroupsEnquiryDate(values.date)} | ${values.time} | ${values.groupSize} ${ui.bookingGroupsEnquirySubjectPeopleUnit}`;
 }
 
 export function groupsEnquiryMailtoFromForm(input: {
