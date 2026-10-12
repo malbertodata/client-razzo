@@ -105,7 +105,7 @@ const uiDe: UiCopy = {
   agb: 'AGB',
   privacy: 'Datenschutz',
   chaletSeasonNote: 'Nur von November bis Januar',
-  bookingGroupsEnquiryButtonLabel: 'Buchungsanfrage für Gruppen',
+  bookingGroupsEnquiryButtonLabel: 'Gruppenbuchung anfragen',
   bookingGroupsEnquiryButtonHint: 'ab 9 Personen',
   bookingGroupsEnquiryModalTitle: 'Buchungsanfrage',
   bookingGroupsEnquiryNav: 'Gruppenanfrage per E-Mail',
