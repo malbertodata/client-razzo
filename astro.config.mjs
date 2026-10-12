@@ -1,5 +1,6 @@
 import './lib/load-env.mjs';
 import { defineConfig } from 'astro/config';
+import { tryHandleAnalyticsProxy } from './lib/analytics-proxy.mjs';
 import { dispatchGroupsEnquiryApi } from './lib/groups-enquiry-http.mjs';
 
 const campaign = 'fondue+chalet+2026';
@@ -9,6 +10,18 @@ export default defineConfig({
   output: 'static',
   vite: {
     plugins: [
+      {
+        name: 'analytics-proxy-dev',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            tryHandleAnalyticsProxy(req, res)
+              .then((result) => {
+                if (result === 'miss') next();
+              })
+              .catch(next);
+          });
+        },
+      },
       {
         name: 'groups-enquiry-api-dev',
         configureServer(server) {

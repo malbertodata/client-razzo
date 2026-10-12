@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "node --import tsx server.mjs",
     "start": "node --import tsx server.mjs",
-    "test": "node --test lib/fallback-redirect.test.mjs && node --import tsx --test src/lib/aleno.test.mjs src/lib/groups-enquiry.test.mjs src/lib/utm.test.mjs"
+    "test": "node --test lib/fallback-redirect.test.mjs lib/analytics-proxy.test.mjs && node --import tsx --test src/lib/aleno.test.mjs src/lib/groups-enquiry.test.mjs src/lib/utm.test.mjs"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
