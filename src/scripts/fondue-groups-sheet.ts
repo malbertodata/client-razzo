@@ -721,13 +721,20 @@ emailInput?.addEventListener('input', () => {
   validateEmailInput();
 });
 
-phoneInput?.addEventListener('input', () => {
+// iOS Safari AutoFill may set the value after (or without) dispatching input/change.
+function schedulePhoneAutofillSync() {
   queueMicrotask(() => validatePhoneInput());
-});
+  requestAnimationFrame(() => validatePhoneInput());
+  window.setTimeout(() => validatePhoneInput(), 150);
+}
 
-phoneInput?.addEventListener('change', () => {
-  validatePhoneInput();
-});
+for (const type of ['input', 'change', 'blur', 'animationstart'] as const) {
+  phoneInput?.addEventListener(type, schedulePhoneAutofillSync);
+}
+
+for (const field of [nameInput, emailInput, notesInput]) {
+  field?.addEventListener('focus', schedulePhoneAutofillSync);
+}
 
 groupSizeInput?.addEventListener('input', () => {
   groupSizeSelected = true;

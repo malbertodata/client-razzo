@@ -79,6 +79,21 @@ test('validateGroupsEnquiryPayload accepts Safari autofill without country code'
   if (result.ok) assert.equal(result.values.phone, '+41 797658991');
 });
 
+test('validateGroupsEnquiryPayload accepts iOS autofill wrapped in bidi isolates', () => {
+  const result = validateGroupsEnquiryPayload({
+    locale: 'de',
+    venue: 'restaurant',
+    date: '2026-10-15',
+    time: '12:00',
+    groupSize: '12',
+    name: 'Test',
+    email: 'guest@example.com',
+    phone: '\u2068797658991\u2069',
+  });
+  assert.equal(result.ok, true);
+  if (result.ok) assert.equal(result.values.phone, '+41 797658991');
+});
+
 test('validateGroupsEnquiryPayload accepts US +1 autofill-style phone', () => {
   const result = validateGroupsEnquiryPayload({
     locale: 'de',

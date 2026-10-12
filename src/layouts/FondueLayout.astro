@@ -936,6 +936,15 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         caret-color: #fff;
         box-shadow: 0 0 0 100px #0a0a0a inset;
         transition: background-color 9999s ease-out 0s;
+        animation: fondue-groups-autofill-start 1ms;
+      }
+      @keyframes fondue-groups-autofill-start {
+        from {
+          outline-color: transparent;
+        }
+        to {
+          outline-color: transparent;
+        }
       }
       .fondue-groups-field input:not([type='radio']):not([type='range']):focus-visible,
       .fondue-groups-field select:focus-visible {
