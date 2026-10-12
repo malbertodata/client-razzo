@@ -810,9 +810,11 @@ emailInput?.addEventListener('input', () => {
 // iOS Safari AutoFill may set the value after (or without) dispatching input/change.
 function schedulePhoneAutofillSync(event?: Event) {
   // Leave keystrokes alone: "+4…" must not jump into the picker and spaces must stay typeable.
+  // Keyboard suggestions and paste insert the whole number in one insertText event.
   const typing =
     event instanceof InputEvent &&
-    (event.inputType.startsWith('insertText') || event.inputType.startsWith('delete'));
+    (event.inputType.startsWith('delete') ||
+      (event.inputType.startsWith('insertText') && (event.data?.length ?? 0) <= 1));
   if (typing) {
     validatePhoneInput(false);
     return;
