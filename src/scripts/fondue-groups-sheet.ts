@@ -835,18 +835,82 @@ function scheduleFocusEmailAfterPhone() {
   });
 }
 
-emailInput?.addEventListener('input', () => {
+function focusNotesInput() {
+  if (!notesInput || notesInput.disabled) return;
+  notesInput.focus({ preventScroll: true });
+}
+
+function shouldAdvanceFromEmailToNotes(): boolean {
+  if (!notesInput || notesInput.disabled) return false;
+  if (notesInput.value.trim()) return false;
+  if (!emailInput || emailInput.disabled) return false;
+  const value = emailInput.value.trim();
+  if (!value) return false;
+  return isValidGroupsEnquiryEmail(value);
+}
+
+function scheduleFocusNotesAfterEmail() {
+  if (!shouldAdvanceFromEmailToNotes()) return;
+  requestAnimationFrame(() => {
+    if (!shouldAdvanceFromEmailToNotes()) return;
+    const active = document.activeElement;
+    if (
+      active &&
+      active !== emailInput &&
+      active !== document.body &&
+      form?.contains(active)
+    ) {
+      return;
+    }
+    focusNotesInput();
+  });
+}
+
+function isContactFieldTyping(event?: Event): boolean {
+  return (
+    event instanceof InputEvent &&
+    (event.inputType.startsWith('delete') ||
+      (event.inputType.startsWith('insertText') && (event.data?.length ?? 0) <= 1))
+  );
+}
+
+// iOS Safari AutoFill may set the value after (or without) dispatching input/change.
+function scheduleEmailAutofillSync(event?: Event) {
+  const typing = isContactFieldTyping(event);
+  const mayAdvanceToNotes =
+    event?.target === emailInput &&
+    (event.type === 'input' || event.type === 'animationstart') &&
+    !typing;
+  if (typing) {
+    validateEmailInput();
+    return;
+  }
+  const syncEmail = () => {
+    validateEmailInput();
+    if (mayAdvanceToNotes) scheduleFocusNotesAfterEmail();
+  };
+  queueMicrotask(syncEmail);
+  requestAnimationFrame(syncEmail);
+  window.setTimeout(syncEmail, 150);
+}
+
+for (const type of ['input', 'change', 'blur', 'animationstart'] as const) {
+  emailInput?.addEventListener(type, scheduleEmailAutofillSync);
+}
+
+emailInput?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
   validateEmailInput();
+  if (!shouldAdvanceFromEmailToNotes()) return;
+  event.preventDefault();
+  focusNotesInput();
 });
 
 // iOS Safari AutoFill may set the value after (or without) dispatching input/change.
 function schedulePhoneAutofillSync(event?: Event) {
   // Leave keystrokes alone: "+4…" must not jump into the picker and spaces must stay typeable.
   // Keyboard suggestions and paste insert the whole number in one insertText event.
-  const typing =
-    event instanceof InputEvent &&
-    (event.inputType.startsWith('delete') ||
-      (event.inputType.startsWith('insertText') && (event.data?.length ?? 0) <= 1));
+  const typing = isContactFieldTyping(event);
   const mayAdvanceToEmail =
     event?.target === phoneInput &&
     (event.type === 'input' || event.type === 'animationstart') &&
