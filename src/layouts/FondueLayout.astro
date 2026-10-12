@@ -1667,6 +1667,29 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         fill: currentColor;
         stroke: none;
       }
+      /* Phone landscape: the left gutter is too short for both the logo and pinned contact icons. */
+      @media (max-width: 1023px) and (max-height: 520px) {
+        .nfc-content {
+          grid-template-rows: max-content max-content;
+        }
+        .nfc-body {
+          --fondue-stack-gap: 0.875rem;
+          height: auto;
+        }
+        .nfc-body:has(.fondue-main-stack) {
+          justify-content: flex-start;
+          padding-bottom: 1.5rem;
+        }
+        .nfc-contact {
+          position: static;
+          left: auto;
+          bottom: auto;
+          width: auto;
+          padding: 0;
+          flex-direction: row;
+          justify-content: center;
+        }
+      }
       /* Short viewports: keep footer pinned; scroll when details expand. */
       @media (max-height: 900px) {
         .nfc-footer {
