@@ -803,6 +803,38 @@ nameInput?.addEventListener('change', () => {
   scheduleFocusPhoneAfterName();
 });
 
+function focusEmailInput() {
+  if (!emailInput || emailInput.disabled) return;
+  emailInput.focus({ preventScroll: true });
+}
+
+function shouldAdvanceFromPhoneToEmail(): boolean {
+  if (!emailInput || emailInput.disabled) return false;
+  if (emailInput.value.trim()) return false;
+  if (!phoneInput || phoneInput.disabled) return false;
+  const value = composedPhoneValue();
+  if (!value) return false;
+  return isValidGroupsEnquiryPhone(value);
+}
+
+function scheduleFocusEmailAfterPhone() {
+  if (!shouldAdvanceFromPhoneToEmail()) return;
+  requestAnimationFrame(() => {
+    if (!shouldAdvanceFromPhoneToEmail()) return;
+    const active = document.activeElement;
+    if (
+      active &&
+      active !== phoneInput &&
+      active !== phoneCodeSelect &&
+      active !== document.body &&
+      form?.contains(active)
+    ) {
+      return;
+    }
+    focusEmailInput();
+  });
+}
+
 emailInput?.addEventListener('input', () => {
   validateEmailInput();
 });
@@ -815,14 +847,30 @@ function schedulePhoneAutofillSync(event?: Event) {
     event instanceof InputEvent &&
     (event.inputType.startsWith('delete') ||
       (event.inputType.startsWith('insertText') && (event.data?.length ?? 0) <= 1));
+  const mayAdvanceToEmail =
+    event?.target === phoneInput &&
+    (event.type === 'input' || event.type === 'animationstart') &&
+    !typing;
   if (typing) {
     validatePhoneInput(false);
     return;
   }
-  queueMicrotask(() => validatePhoneInput());
-  requestAnimationFrame(() => validatePhoneInput());
-  window.setTimeout(() => validatePhoneInput(), 150);
+  const syncPhone = () => {
+    validatePhoneInput();
+    if (mayAdvanceToEmail) scheduleFocusEmailAfterPhone();
+  };
+  queueMicrotask(syncPhone);
+  requestAnimationFrame(syncPhone);
+  window.setTimeout(syncPhone, 150);
 }
+
+phoneInput?.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
+  validatePhoneInput(true);
+  if (!shouldAdvanceFromPhoneToEmail()) return;
+  event.preventDefault();
+  focusEmailInput();
+});
 
 for (const type of ['input', 'change', 'blur', 'animationstart'] as const) {
   phoneInput?.addEventListener(type, schedulePhoneAutofillSync);
