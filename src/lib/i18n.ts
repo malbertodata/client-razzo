@@ -57,6 +57,7 @@ export type UiCopy = {
   bookingGroupsFormPhone: string;
   bookingGroupsFormPhoneCode: string;
   bookingGroupsFormNotes: string;
+  bookingGroupsFormNotesPlaceholder: string;
   bookingGroupsFormContinue: string;
   bookingGroupsFormBack: string;
   bookingGroupsFormSubmit: string;
@@ -142,6 +143,7 @@ const uiDe: UiCopy = {
   bookingGroupsFormPhone: 'Telefon:',
   bookingGroupsFormPhoneCode: 'Ländervorwahl',
   bookingGroupsFormNotes: 'Anmerkungen:',
+  bookingGroupsFormNotesPlaceholder: 'z.B. Firmenname, Anlass, etc.',
   bookingGroupsFormContinue: 'Weiter',
   bookingGroupsFormBack: 'Zurück',
   bookingGroupsFormSubmit: 'Anfrage senden',

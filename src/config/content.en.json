@@ -53,6 +53,7 @@
     "bookingGroupsFormPhone": "Phone:",
     "bookingGroupsFormPhoneCode": "Country code",
     "bookingGroupsFormNotes": "Notes:",
+    "bookingGroupsFormNotesPlaceholder": "e.g. company name, occasion, etc.",
     "bookingGroupsFormContinue": "Continue",
     "bookingGroupsFormBack": "Back",
     "bookingGroupsFormSubmit": "Send enquiry",

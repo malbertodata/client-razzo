@@ -2109,6 +2109,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                       id="fondue-groups-phone-code"
                       name="phoneCode"
                       disabled
+                      tabindex="-1"
                       autocomplete="tel-country-code"
                       aria-label={ui.bookingGroupsFormPhoneCode}
                     >
@@ -2152,6 +2153,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                     name="notes"
                     disabled
                     rows={3}
+                    placeholder={ui.bookingGroupsFormNotesPlaceholder}
                   />
                 </p>
                 <div class="fondue-groups-sheet-actions fondue-groups-sheet-actions--split">

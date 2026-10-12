@@ -750,6 +750,59 @@ venueInputs?.forEach((input) => {
   input.addEventListener('change', () => syncVenueDependentFields());
 });
 
+function focusPhoneNationalInput() {
+  if (!phoneInput || phoneInput.disabled) return;
+  phoneInput.focus({ preventScroll: true });
+}
+
+function shouldAdvanceFromNameToPhone(): boolean {
+  if (!nameInput?.value.trim()) return false;
+  if (phoneInput?.value.trim()) return false;
+  return Boolean(phoneInput && !phoneInput.disabled);
+}
+
+function scheduleFocusPhoneAfterName() {
+  if (!shouldAdvanceFromNameToPhone()) return;
+  requestAnimationFrame(() => {
+    if (!shouldAdvanceFromNameToPhone()) return;
+    const active = document.activeElement;
+    if (
+      active &&
+      active !== nameInput &&
+      active !== document.body &&
+      form?.contains(active)
+    ) {
+      return;
+    }
+    focusPhoneNationalInput();
+  });
+}
+
+nameInput?.addEventListener('keydown', (event) => {
+  if (!shouldAdvanceFromNameToPhone()) return;
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    focusPhoneNationalInput();
+    return;
+  }
+  if (event.key === 'Tab' && !event.shiftKey) {
+    event.preventDefault();
+    focusPhoneNationalInput();
+  }
+});
+
+nameInput?.addEventListener('blur', () => {
+  scheduleFocusPhoneAfterName();
+});
+
+nameInput?.addEventListener('animationstart', () => {
+  queueMicrotask(() => scheduleFocusPhoneAfterName());
+});
+
+nameInput?.addEventListener('change', () => {
+  scheduleFocusPhoneAfterName();
+});
+
 emailInput?.addEventListener('input', () => {
   validateEmailInput();
 });
