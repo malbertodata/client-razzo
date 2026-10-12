@@ -929,6 +929,14 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
           font-size: 1rem;
         }
       }
+      .fondue-groups-field input:-webkit-autofill,
+      .fondue-groups-field input:-webkit-autofill:hover,
+      .fondue-groups-field input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #fff;
+        caret-color: #fff;
+        box-shadow: 0 0 0 100px #0a0a0a inset;
+        transition: background-color 9999s ease-out 0s;
+      }
       .fondue-groups-field input:not([type='radio']):not([type='range']):focus-visible,
       .fondue-groups-field select:focus-visible {
         outline: none;
@@ -1150,32 +1158,43 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         font-size: 0.8125rem;
         letter-spacing: 0.02em;
       }
+      .fondue-groups-sheet-panel--confirm .fondue-groups-form {
+        display: none;
+      }
       .fondue-groups-cancel-confirm {
-        position: absolute;
-        inset: 2.75rem 0 0;
-        z-index: 2;
+        container-type: inline-size;
         display: flex;
         flex-direction: column;
+        align-items: stretch;
         justify-content: center;
-        gap: 0.75rem;
-        padding: 0.75rem 0 1rem;
-        background: rgba(0, 0, 0, 0.88);
+        gap: 0.875rem;
+        padding: 1.25rem 0 0.5rem;
+        text-align: center;
       }
       .fondue-groups-cancel-confirm[hidden] {
         display: none;
       }
-      .fondue-groups-cancel-confirm-text {
-        margin: 0;
+      .fondue-groups-cancel-confirm-icon {
+        align-self: center;
+        width: 2.25rem;
+        height: 2.25rem;
         color: oklch(88% 0.006 264.542);
-        font-size: 0.875rem;
-        line-height: 1.5;
-        text-align: center;
-        white-space: pre-line;
+        stroke: currentColor;
+        fill: none;
       }
-      .fondue-groups-cancel-confirm-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
+      .fondue-groups-cancel-confirm-text {
+        margin: 0 0 0.5rem;
+        color: oklch(88% 0.006 264.542);
+        font-size: min(0.875rem, 4cqi);
+        line-height: 1.6;
+        white-space: pre;
+      }
+      .fondue-groups-cancel-confirm-actions .nfc-link {
+        box-sizing: border-box;
+        min-height: 3rem;
+        padding: 0.75rem 0.625rem;
+        font-size: 0.875rem;
+        line-height: 1.2;
       }
       .fondue-groups-submit-status {
         margin: 0;
@@ -2127,6 +2146,16 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                 aria-modal="true"
                 aria-describedby="fondue-groups-cancel-confirm-text"
               >
+                <svg
+                  class="fondue-groups-cancel-confirm-icon"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10" stroke-width="1.25"></circle>
+                  <path d="M12 7v6.5" stroke-width="1.5" stroke-linecap="round"></path>
+                  <circle cx="12" cy="16.75" r="0.9" fill="currentColor" stroke="none"></circle>
+                </svg>
                 <p class="fondue-groups-cancel-confirm-text" id="fondue-groups-cancel-confirm-text">
                   {ui.bookingGroupsModalCancelMessage}
                 </p>

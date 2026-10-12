@@ -569,11 +569,13 @@ let cancelReturnFocus: HTMLElement | null = null;
 
 function hideCancelConfirm() {
   cancelConfirm?.setAttribute('hidden', '');
+  cancelConfirm?.parentElement?.classList.remove('fondue-groups-sheet-panel--confirm');
 }
 
 function showCancelConfirm(focusTarget: HTMLElement | null) {
   if (!cancelConfirm) return;
   cancelReturnFocus = focusTarget;
+  cancelConfirm.parentElement?.classList.add('fondue-groups-sheet-panel--confirm');
   cancelConfirm.removeAttribute('hidden');
   cancelDismissBtn?.focus();
 }

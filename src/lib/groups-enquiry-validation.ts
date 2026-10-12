@@ -14,7 +14,12 @@ export function normalizeGroupsEnquiryPhone(raw: string): string {
   value = value.replace(/[\u2010-\u2015\u2212]/g, '-');
   value = value.replace(/[\u00A0\u202F\u2009]/g, ' ');
   value = value.replace(/[\u200B-\u200D\uFEFF\u202A-\u202E]/g, '');
-  return value.trim();
+  value = value.trim();
+  // Safari AutoFill drops "+41" for same-region numbers without adding the trunk "0".
+  if (/^[1-9]\d{8}$/.test(value.replace(/[\s.\-()/]/g, ''))) {
+    value = `+41 ${value}`;
+  }
+  return value;
 }
 
 function compactGroupsEnquiryPhone(normalized: string): string {
