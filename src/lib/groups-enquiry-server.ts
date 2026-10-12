@@ -17,6 +17,7 @@ import {
 import {
   isValidGroupsEnquiryEmail,
   isValidGroupsEnquiryPhone,
+  normalizeGroupsEnquiryPhone,
 } from '@/lib/groups-enquiry-validation';
 import {
   formatGroupsEnquiryUtmChannelLabel,
@@ -80,10 +81,11 @@ export function validateGroupsEnquiryPayload(raw: unknown):
   const groupSizeRaw = asTrimmedString(record.groupSize);
   const name = asTrimmedString(record.name);
   const email = asTrimmedString(record.email);
-  const phone = asTrimmedString(record.phone);
+  const phoneRaw = asTrimmedString(record.phone);
+  const phone = normalizeGroupsEnquiryPhone(phoneRaw);
   const notes = asTrimmedString(record.notes);
 
-  if (!date || !time || !groupSizeRaw || !name || !email || !phone) {
+  if (!date || !time || !groupSizeRaw || !name || !email || !phoneRaw) {
     return { ok: false, error: 'missing_fields' };
   }
 

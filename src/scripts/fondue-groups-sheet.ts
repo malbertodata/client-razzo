@@ -12,6 +12,7 @@ import { trackUmamiEvent } from '@/lib/analytics';
 import {
   isValidGroupsEnquiryEmail,
   isValidGroupsEnquiryPhone,
+  normalizeGroupsEnquiryPhone,
 } from '@/lib/groups-enquiry-validation';
 import type { GroupsEnquiryVenue, Locale } from '@/lib/i18n';
 import {
@@ -448,8 +449,17 @@ function groupsEnquiryPhoneInvalidMessage(): string {
   return form?.dataset.submitInvalidPhone?.trim() || 'Bitte eine gültige Telefonnummer eingeben.';
 }
 
+function syncPhoneInputFromAutofill() {
+  if (!phoneInput) return;
+  const normalized = normalizeGroupsEnquiryPhone(phoneInput.value);
+  if (normalized !== phoneInput.value) {
+    phoneInput.value = normalized;
+  }
+}
+
 function validatePhoneInput(): boolean {
   if (!phoneInput) return true;
+  syncPhoneInputFromAutofill();
   const value = phoneInput.value.trim();
   if (!value) {
     phoneInput.setCustomValidity('');
@@ -710,6 +720,10 @@ emailInput?.addEventListener('input', () => {
 });
 
 phoneInput?.addEventListener('input', () => {
+  queueMicrotask(() => validatePhoneInput());
+});
+
+phoneInput?.addEventListener('change', () => {
   validatePhoneInput();
 });
 
