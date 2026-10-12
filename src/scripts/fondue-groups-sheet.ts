@@ -845,6 +845,41 @@ groupSizeInput?.addEventListener('change', () => {
   syncStepNextButton();
 });
 
+function groupsFormFieldHasFocus(): boolean {
+  const active = document.activeElement;
+  return (
+    active instanceof HTMLElement &&
+    active !== submitBtn &&
+    Boolean(form?.contains(active)) &&
+    active.matches('input, textarea, select')
+  );
+}
+
+/** iOS Safari blurs the keyboard on tap and drops the click; submit from pointerdown instead. */
+function bindGroupsSubmitWhileKeyboardOpen() {
+  if (!form || !submitBtn) return;
+
+  submitBtn.addEventListener('pointerdown', (event) => {
+    if (submitBtn.disabled || event.pointerType === 'mouse') return;
+    if (!groupsFormFieldHasFocus()) return;
+    event.preventDefault();
+    submitBtn.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    form.requestSubmit(submitBtn);
+  });
+
+  step2Panel?.addEventListener('focusin', (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement) || !target.matches('input, textarea, select')) return;
+    requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        submitBtn.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }, 150);
+    });
+  });
+}
+
+bindGroupsSubmitWhileKeyboardOpen();
+
 form?.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!form || submitBtn?.disabled) return;
