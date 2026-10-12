@@ -26,6 +26,21 @@ import {
 } from '@/lib/utm';
 import { mountGroupsDatePicker, type GroupsDatePicker } from './fondue-groups-date-picker';
 
+// iOS Safari keeps the focus zoom after the sheet closes. maximum-scale=1 stops that auto-zoom
+// while iOS still allows pinch zoom; other platforms would lose pinch zoom, so iOS only.
+function preventIosInputZoom() {
+  const isIos =
+    /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIos) return;
+  const viewport = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+  if (viewport && !/maximum-scale/.test(viewport.content)) {
+    viewport.content = `${viewport.content}, maximum-scale=1`;
+  }
+}
+
+preventIosInputZoom();
+
 const sheet = document.getElementById('fondue-groups-sheet');
 const openBtn = document.querySelector<HTMLButtonElement>('[data-groups-sheet-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-groups-sheet-close]');
