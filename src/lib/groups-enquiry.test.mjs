@@ -29,7 +29,7 @@ test('validateGroupsEnquiryPayload rejects invalid time for date', () => {
     groupSize: '12',
     name: 'Test',
     email: 'guest@example.com',
-    phone: '123',
+    phone: '0797658991',
   });
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error, 'invalid_time');
@@ -44,10 +44,53 @@ test('validateGroupsEnquiryPayload rejects incomplete email domain', () => {
     groupSize: '12',
     name: 'Test',
     email: 'markusalbert@me',
-    phone: '123',
+    phone: '0797658991',
   });
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error, 'invalid_email');
+});
+
+test('validateGroupsEnquiryPayload accepts national mobile phone', () => {
+  const result = validateGroupsEnquiryPayload({
+    locale: 'de',
+    venue: 'restaurant',
+    date: '2026-10-15',
+    time: '12:00',
+    groupSize: '12',
+    name: 'Test',
+    email: 'guest@example.com',
+    phone: '0797658991',
+  });
+  assert.equal(result.ok, true);
+});
+
+test('validateGroupsEnquiryPayload accepts international phone with spaces', () => {
+  const result = validateGroupsEnquiryPayload({
+    locale: 'de',
+    venue: 'restaurant',
+    date: '2026-10-15',
+    time: '12:00',
+    groupSize: '12',
+    name: 'Test',
+    email: 'guest@example.com',
+    phone: '+41 79 765 89 91',
+  });
+  assert.equal(result.ok, true);
+});
+
+test('validateGroupsEnquiryPayload rejects invalid phone', () => {
+  const result = validateGroupsEnquiryPayload({
+    locale: 'de',
+    venue: 'restaurant',
+    date: '2026-10-15',
+    time: '12:00',
+    groupSize: '12',
+    name: 'Test',
+    email: 'guest@example.com',
+    phone: '12345',
+  });
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.error, 'invalid_phone');
 });
 
 test('validateGroupsEnquiryPayload rejects group size below 9', () => {
@@ -59,7 +102,7 @@ test('validateGroupsEnquiryPayload rejects group size below 9', () => {
     groupSize: '8',
     name: 'Test',
     email: 'guest@example.com',
-    phone: '123',
+    phone: '0797658991',
   });
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.error, 'invalid_group_size');

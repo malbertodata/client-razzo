@@ -14,7 +14,10 @@ import {
   type GroupsEnquiryVenue,
   type Locale,
 } from '@/lib/i18n';
-import { isValidGroupsEnquiryEmail } from '@/lib/groups-enquiry-validation';
+import {
+  isValidGroupsEnquiryEmail,
+  isValidGroupsEnquiryPhone,
+} from '@/lib/groups-enquiry-validation';
 import {
   formatGroupsEnquiryUtmChannelLabel,
   normalizeGroupsEnquiryUtmInput,
@@ -32,6 +35,7 @@ export type GroupsEnquiryApiError =
   | 'invalid_time'
   | 'invalid_group_size'
   | 'invalid_email'
+  | 'invalid_phone'
   | 'missing_fields'
   | 'send_failed'
   | 'not_configured';
@@ -85,6 +89,10 @@ export function validateGroupsEnquiryPayload(raw: unknown):
 
   if (!isValidGroupsEnquiryEmail(email)) {
     return { ok: false, error: 'invalid_email' };
+  }
+
+  if (!isValidGroupsEnquiryPhone(phone)) {
+    return { ok: false, error: 'invalid_phone' };
   }
 
   const groupSize = Number(groupSizeRaw);

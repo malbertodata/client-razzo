@@ -9,7 +9,10 @@ import {
   type GroupsEnquiryDateBounds,
 } from '@/lib/aleno';
 import { trackUmamiEvent } from '@/lib/analytics';
-import { isValidGroupsEnquiryEmail } from '@/lib/groups-enquiry-validation';
+import {
+  isValidGroupsEnquiryEmail,
+  isValidGroupsEnquiryPhone,
+} from '@/lib/groups-enquiry-validation';
 import type { GroupsEnquiryVenue, Locale } from '@/lib/i18n';
 import {
   hasGroupsEnquiryUtm,
@@ -23,7 +26,6 @@ const sheet = document.getElementById('fondue-groups-sheet');
 const openBtn = document.querySelector<HTMLButtonElement>('[data-groups-sheet-open]');
 const closeBtn = document.querySelector<HTMLButtonElement>('[data-groups-sheet-close]');
 const cancelConfirm = document.getElementById('fondue-groups-cancel-confirm');
-const cancelConfirmBtn = document.querySelector<HTMLButtonElement>('[data-groups-cancel-confirm]');
 const cancelDismissBtn = document.querySelector<HTMLButtonElement>('[data-groups-cancel-dismiss]');
 const form = document.querySelector<HTMLFormElement>('[data-groups-form]');
 const nameInput = form?.querySelector<HTMLInputElement>('#fondue-groups-name');
@@ -431,6 +433,25 @@ function groupsEnquiryEmailInvalidMessage(): string {
   return form?.dataset.submitInvalidEmail?.trim() || 'Bitte eine gültige E-Mail-Adresse eingeben.';
 }
 
+function groupsEnquiryPhoneInvalidMessage(): string {
+  return form?.dataset.submitInvalidPhone?.trim() || 'Bitte eine gültige Telefonnummer eingeben.';
+}
+
+function validatePhoneInput(): boolean {
+  if (!phoneInput) return true;
+  const value = phoneInput.value.trim();
+  if (!value) {
+    phoneInput.setCustomValidity('');
+    return true;
+  }
+  if (!isValidGroupsEnquiryPhone(value)) {
+    phoneInput.setCustomValidity(groupsEnquiryPhoneInvalidMessage());
+    return false;
+  }
+  phoneInput.setCustomValidity('');
+  return true;
+}
+
 function validateEmailInput(): boolean {
   if (!emailInput) return true;
   const value = emailInput.value.trim();
@@ -640,7 +661,13 @@ function closeSheet() {
 
 openBtn?.addEventListener('click', () => openSheet());
 
-closeBtn?.addEventListener('click', () => requestCloseSheet(closeBtn));
+closeBtn?.addEventListener('click', () => {
+  if (cancelConfirm && !cancelConfirm.hidden) {
+    closeSheet();
+    return;
+  }
+  requestCloseSheet(closeBtn);
+});
 successPanel
   ?.querySelector<HTMLAnchorElement>('[data-groups-success-instagram]')
   ?.addEventListener('click', () => {
@@ -657,7 +684,6 @@ stepBackBtn?.addEventListener('click', () => {
   setFormStep(1);
   stepNextBtn?.focus();
 });
-cancelConfirmBtn?.addEventListener('click', () => closeSheet());
 cancelDismissBtn?.addEventListener('click', () => {
   hideCancelConfirm();
   cancelReturnFocus?.focus();
@@ -670,6 +696,10 @@ venueInputs?.forEach((input) => {
 
 emailInput?.addEventListener('input', () => {
   validateEmailInput();
+});
+
+phoneInput?.addEventListener('input', () => {
+  validatePhoneInput();
 });
 
 groupSizeInput?.addEventListener('input', () => {
@@ -691,8 +721,11 @@ form?.addEventListener('submit', async (event) => {
   if (!timeInput?.value.trim()) {
     timeInput?.setCustomValidity(localeRequiredTimeMessage(parseLocale(form.dataset.groupsLocale)));
   }
-  if (!validateEmailInput() || !form.reportValidity()) {
-    emailInput?.focus();
+  const phoneOk = validatePhoneInput();
+  const emailOk = validateEmailInput();
+  if (!phoneOk || !emailOk || !form.reportValidity()) {
+    if (!phoneOk) phoneInput?.focus();
+    else if (!emailOk) emailInput?.focus();
     return;
   }
 
@@ -752,6 +785,10 @@ form?.addEventListener('submit', async (event) => {
         emailInput?.setCustomValidity(groupsEnquiryEmailInvalidMessage());
         emailInput?.reportValidity();
         emailInput?.focus();
+      } else if (body?.error === 'invalid_phone') {
+        phoneInput?.setCustomValidity(groupsEnquiryPhoneInvalidMessage());
+        phoneInput?.reportValidity();
+        phoneInput?.focus();
       } else {
         showSubmitStatus('error', errorLabel);
       }

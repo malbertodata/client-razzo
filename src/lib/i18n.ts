@@ -53,6 +53,7 @@ export type UiCopy = {
   bookingGroupsFormName: string;
   bookingGroupsFormEmail: string;
   bookingGroupsFormEmailInvalid: string;
+  bookingGroupsFormPhoneInvalid: string;
   bookingGroupsFormPhone: string;
   bookingGroupsFormNotes: string;
   bookingGroupsFormContinue: string;
@@ -105,7 +106,7 @@ const uiDe: UiCopy = {
   agb: 'AGB',
   privacy: 'Datenschutz',
   chaletSeasonNote: 'Nur von November bis Januar',
-  bookingGroupsEnquiryButtonLabel: 'Gruppenbuchung anfragen',
+  bookingGroupsEnquiryButtonLabel: 'Gruppenbuchung',
   bookingGroupsEnquiryButtonHint: 'ab 9 Personen',
   bookingGroupsEnquiryModalTitle: 'Buchungsanfrage',
   bookingGroupsEnquiryNav: 'Gruppenanfrage per E-Mail',
@@ -136,6 +137,8 @@ const uiDe: UiCopy = {
   bookingGroupsFormEmail: 'E-Mail:',
   bookingGroupsFormEmailInvalid:
     'Bitte eine gültige E-Mail-Adresse eingeben (z. B. name@beispiel.ch).',
+  bookingGroupsFormPhoneInvalid:
+    'Bitte eine gültige Telefonnummer eingeben (z. B. 079 … oder +41 …).',
   bookingGroupsFormPhone: 'Telefon:',
   bookingGroupsFormNotes: 'Anmerkungen:',
   bookingGroupsFormContinue: 'Weiter',
@@ -149,7 +152,7 @@ const uiDe: UiCopy = {
     'Senden fehlgeschlagen. Bitte später erneut versuchen oder uns direkt per E-Mail kontaktieren.',
   bookingGroupsModalClose: 'Schliessen',
   bookingGroupsModalCancelMessage:
-    'Möchten Sie die Anfrage abbrechen? Ihre Eingaben gehen verloren.',
+    'Möchten Sie die Anfrage abbrechen?\nIhre Eingaben gehen verloren.',
   bookingGroupsModalCancelConfirm: 'Anfrage abbrechen',
   bookingGroupsModalCancelDismiss: 'Anfrage fortsetzen',
   bookingDetailsToggle: 'Öffnungszeiten & Details',
