@@ -64,7 +64,7 @@ UMAMI_WEBSITE_ID=… ANALYTICS_PROXY_PATH=… npm run preview
 1. Point **www.razzosg.ch** and **razzosg.ch** at this app (**FQDN order:** `https://www.razzosg.ch,https://razzosg.ch`; redirect **www**).
 2. Set build args / env: `PUBLIC_UMAMI_WEBSITE_ID`, `PUBLIC_ANALYTICS_PROXY_PATH` (same token as Razzo NFC site).
 3. Set runtime env on the container: `UMAMI_WEBSITE_ID`, `ANALYTICS_PROXY_PATH`, optional `UMAMI_UPSTREAM_URL`.
-4. Gruppenanfrage e-mail (Resend): `RESEND_API_KEY`, optional `GROUPS_ENQUIRY_FROM` (default `ciao@razzosg.ch`), `GROUPS_ENQUIRY_TO` (default `markusalbert@me.com`). Domain `razzosg.ch` must be verified in Resend.
+4. Gruppenanfrage e-mail (Resend): `RESEND_API_KEY`, optional `GROUPS_ENQUIRY_FROM` (default `ciao@razzosg.ch`), `GROUPS_ENQUIRY_TO` (default `markusalbert@me.com`), optional runtime `GROUPS_ENQUIRY_BCC` (BCC copy; hidden from the primary recipient — set on Coolify, not in the repo). Domain `razzosg.ch` must be verified in Resend.
 5. Build command: `npm run build` — start command: `node --import tsx server.mjs`.
 6. Proxy / HTTPS / token rotation: [coolify-proxy-operations.md](coolify-proxy-operations.md).
 

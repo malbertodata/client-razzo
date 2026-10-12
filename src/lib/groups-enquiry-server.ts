@@ -169,6 +169,7 @@ async function sendViaResend(values: GroupsEnquiryRequest): Promise<void> {
     campaign.groupsEnquiryEmail?.trim() ||
     'ciao@razzosg.ch';
   const toAddress = process.env.GROUPS_ENQUIRY_TO?.trim() || 'markusalbert@me.com';
+  const bccAddress = process.env.GROUPS_ENQUIRY_BCC?.trim();
 
   const intro = groupsEnquiryEmailIntro(values.utm ?? normalizeGroupsEnquiryUtmInput(null));
   const { text, html } = formatGroupsEnquiryMailBodies('de', values, intro.text, intro.html);
@@ -183,6 +184,7 @@ async function sendViaResend(values: GroupsEnquiryRequest): Promise<void> {
     body: JSON.stringify({
       from: `Razzo <${fromAddress}>`,
       to: [toAddress],
+      ...(bccAddress ? { bcc: [bccAddress] } : {}),
       reply_to: values.email,
       subject,
       text,
