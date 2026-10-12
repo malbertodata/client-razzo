@@ -3,18 +3,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev --port 4321",
+    "dev": "NODE_OPTIONS='--import tsx' astro dev --port 4321",
     "build": "astro build",
-    "preview": "node server.mjs",
-    "start": "node server.mjs",
-    "test": "node --test lib/fallback-redirect.test.mjs && node --import tsx --test src/lib/aleno.test.mjs"
+    "preview": "node --import tsx server.mjs",
+    "start": "node --import tsx server.mjs",
+    "test": "node --test lib/fallback-redirect.test.mjs && node --import tsx --test src/lib/aleno.test.mjs src/lib/groups-enquiry.test.mjs src/lib/utm.test.mjs"
   },
   "dependencies": {
-    "sirv": "^3.0.2"
+    "dotenv": "^16.6.1",
+    "sirv": "^3.0.2",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "astro": "^5.7.10",
-    "tsx": "^4.21.0",
     "typescript": "^5.8.3"
   },
   "engines": {

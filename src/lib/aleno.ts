@@ -14,8 +14,8 @@ const RESTAURANT_SLOT_ROUND_MINUTES = 30;
 const RESTAURANT_ONLINE_CUTOFF_BEFORE_CLOSE_MINUTES = 120;
 
 const CHALET_LEAD_MINUTES = 90;
-const CHALET_SLOT_ROUND_MINUTES = 30;
-const CHALET_LAST_SLOT_BEFORE_WINDOW_END_MINUTES = 30;
+/** Aleno chalet widget uses 15-minute reservation starts. */
+const CHALET_SLOT_ROUND_MINUTES = 15;
 
 type ZurichClock = {
   year: number;
@@ -100,8 +100,12 @@ function isoDateCompare(a: string, b: string): number {
   return a.localeCompare(b);
 }
 
-function zurichIsoDate(now: Date): string {
+export function zurichTodayIso(now: Date = new Date()): string {
   return isoDate(zurichClock(now));
+}
+
+function zurichIsoDate(now: Date): string {
+  return zurichTodayIso(now);
 }
 
 function clockOnIsoDate(iso: string): ZurichClock {
@@ -109,17 +113,241 @@ function clockOnIsoDate(iso: string): ZurichClock {
   return zurichClock(new Date(Date.UTC(year!, month! - 1, day!, 12, 0, 0)));
 }
 
-/** Chalet: Tue–Sat; lunch + dinner Tue–Fri, continuous Sat (see site copy). */
-function chaletServiceWindows(weekday: number): Array<[number, number]> | null {
+function bookableSlotStartsInWindow(
+  windowStartMinutes: number,
+  windowEndMinutes: number,
+  stepMinutes: number,
+  lastStartBeforeEndMinutes: number,
+): string[] {
+  const lastBookableStart = windowEndMinutes - lastStartBeforeEndMinutes;
+  const slots: string[] = [];
+  for (let candidate = windowStartMinutes; candidate <= lastBookableStart; candidate += stepMinutes) {
+    slots.push(formatHHmm(Math.floor(candidate / 60), candidate % 60));
+  }
+  return slots;
+}
+
+/**
+ * Chalet bookable windows: [first slot, last slot] inclusive (matches Aleno shift grids).
+ * Tue–Fri: lunch + dinner; Sat: two shifts (11:00–16, 16–21).
+ */
+function chaletBookableWindows(weekday: number): Array<[number, number]> | null {
   if (weekday === 0 || weekday === 1) return null;
-  if (weekday === 6) return [[11 * 60, 22 * 60]];
+  if (weekday === 6) {
+    return [
+      [11 * 60, 16 * 60],
+      [16 * 60, 21 * 60],
+    ];
+  }
   if (weekday >= 2 && weekday <= 5) {
     return [
       [11 * 60 + 30, 14 * 60],
-      [17 * 60 + 30, 22 * 60],
+      [17 * 60 + 30, 20 * 60 + 30],
     ];
   }
   return null;
+}
+
+function slotStartsThroughLastInclusive(
+  startMinutes: number,
+  lastStartMinutes: number,
+  stepMinutes: number,
+): string[] {
+  const slots: string[] = [];
+  for (let candidate = startMinutes; candidate <= lastStartMinutes; candidate += stepMinutes) {
+    slots.push(formatHHmm(Math.floor(candidate / 60), candidate % 60));
+  }
+  return slots;
+}
+
+function chaletSlotsForWindow(startMinutes: number, lastStartMinutes: number): string[] {
+  return slotStartsThroughLastInclusive(
+    startMinutes,
+    lastStartMinutes,
+    CHALET_SLOT_ROUND_MINUTES,
+  );
+}
+
+/** 15-minute starts within chalet Aleno shifts. */
+export function chaletBookableTimesForWeekday(weekday: number): string[] {
+  const windows = chaletBookableWindows(weekday);
+  if (!windows) return [];
+  const times = windows.flatMap(([start, last]) => chaletSlotsForWindow(start, last));
+  return [...new Set(times)];
+}
+
+/** Restaurant: lunch + dinner windows (30-minute grid, online cutoff on evening shift). */
+function restaurantBookableWindows(weekday: number): Array<[number, number]> | null {
+  const closeHour = restaurantClosingHour(weekday);
+  if (closeHour === null) return null;
+  const dinnerLast = closeHour * 60 - RESTAURANT_ONLINE_CUTOFF_BEFORE_CLOSE_MINUTES;
+  const lunchStart = RESTAURANT_OPEN_HOUR * 60;
+  const lunchLast = 14 * 60;
+  const dinnerStart = 17 * 60 + 30;
+  if (dinnerLast < dinnerStart) {
+    return [[lunchStart, Math.min(lunchLast, dinnerLast)]];
+  }
+  return [
+    [lunchStart, lunchLast],
+    [dinnerStart, dinnerLast],
+  ];
+}
+
+function restaurantSlotsForWindow(startMinutes: number, lastStartMinutes: number): string[] {
+  return slotStartsThroughLastInclusive(
+    startMinutes,
+    lastStartMinutes,
+    RESTAURANT_SLOT_ROUND_MINUTES,
+  );
+}
+
+/** Half-hour starts within restaurant hours (same grid as the Aleno restaurant widget). */
+export function restaurantBookableTimesForWeekday(weekday: number): string[] {
+  const windows = restaurantBookableWindows(weekday);
+  if (!windows) return [];
+  const times = windows.flatMap(([start, last]) => restaurantSlotsForWindow(start, last));
+  return [...new Set(times)];
+}
+
+export function groupsEnquiryWeekdayFromIso(dateIso: string): number | null {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateIso.trim())) return null;
+  return clockOnIsoDate(dateIso.trim()).weekday;
+}
+
+export type GroupsEnquiryTimeWindowKey = 'lunch' | 'dinner' | 'continuous' | 'restaurant';
+
+export type GroupsEnquiryTimeWindow = {
+  key: GroupsEnquiryTimeWindowKey;
+  times: string[];
+  rangeStart: string;
+  rangeEnd: string;
+};
+
+function groupsEnquiryTimeWindow(
+  key: GroupsEnquiryTimeWindowKey,
+  times: string[],
+): GroupsEnquiryTimeWindow | null {
+  if (times.length === 0) return null;
+  return {
+    key,
+    times,
+    rangeStart: times[0]!,
+    rangeEnd: times.at(-1)!,
+  };
+}
+
+export function groupsEnquiryBookableTimeWindows(
+  dateIso: string,
+  venue: 'chalet' | 'restaurant',
+): GroupsEnquiryTimeWindow[] {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateIso.trim())) return [];
+  const weekday = clockOnIsoDate(dateIso.trim()).weekday;
+
+  if (venue === 'restaurant') {
+    const windows = restaurantBookableWindows(weekday);
+    if (!windows) return [];
+    if (windows.length === 1) {
+      const [start, last] = windows[0]!;
+      const window = groupsEnquiryTimeWindow(
+        'restaurant',
+        restaurantSlotsForWindow(start, last),
+      );
+      return window ? [window] : [];
+    }
+    const keys: GroupsEnquiryTimeWindowKey[] = ['lunch', 'dinner'];
+    return windows
+      .map(([start, last], index) =>
+        groupsEnquiryTimeWindow(
+          keys[index] ?? 'restaurant',
+          restaurantSlotsForWindow(start, last),
+        ),
+      )
+      .filter((window): window is GroupsEnquiryTimeWindow => window !== null);
+  }
+
+  const windows = chaletBookableWindows(weekday);
+  if (!windows) return [];
+
+  if (windows.length === 1) {
+    const [start, last] = windows[0]!;
+    const window = groupsEnquiryTimeWindow('continuous', chaletSlotsForWindow(start, last));
+    return window ? [window] : [];
+  }
+
+  const keys: GroupsEnquiryTimeWindowKey[] = ['lunch', 'dinner'];
+  return windows
+    .map(([start, last], index) =>
+      groupsEnquiryTimeWindow(keys[index] ?? 'continuous', chaletSlotsForWindow(start, last)),
+    )
+    .filter((window): window is GroupsEnquiryTimeWindow => window !== null);
+}
+
+export function groupsEnquiryBookableTimes(
+  dateIso: string,
+  venue: 'chalet' | 'restaurant',
+): string[] {
+  return groupsEnquiryBookableTimeWindows(dateIso, venue).flatMap((window) => window.times);
+}
+
+export function groupsEnquiryWeekdayHasService(
+  venue: 'chalet' | 'restaurant',
+  weekday: number,
+): boolean {
+  return venue === 'chalet'
+    ? chaletBookableTimesForWeekday(weekday).length > 0
+    : restaurantBookableTimesForWeekday(weekday).length > 0;
+}
+
+export type GroupsEnquiryDateBounds = {
+  min: string;
+  max: string;
+};
+
+export function groupsEnquiryChaletDateBounds(
+  firstAvailable: string,
+  lastAvailable = '2027-01-30',
+): GroupsEnquiryDateBounds {
+  return {
+    min: firstAvailable.trim(),
+    max: lastAvailable.trim(),
+  };
+}
+
+export function groupsEnquiryRestaurantDateBounds(now: Date = new Date()): GroupsEnquiryDateBounds {
+  return {
+    min: zurichTodayIso(now),
+    max: '',
+  };
+}
+
+export function groupsEnquiryIsDateInBounds(
+  dateIso: string,
+  bounds: GroupsEnquiryDateBounds,
+): boolean {
+  const date = dateIso.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  const min = bounds.min.trim();
+  const max = bounds.max.trim();
+  if (min && isoDateCompare(date, min) < 0) return false;
+  if (max && isoDateCompare(date, max) > 0) return false;
+  return true;
+}
+
+/** Chalet: closed Sun (0) and Mon (1) — matches reservieren page opening hours. */
+export function groupsEnquiryChaletClosedWeekday(weekday: number): boolean {
+  return weekday === 0 || weekday === 1;
+}
+
+export function groupsEnquiryIsValidDate(
+  dateIso: string,
+  venue: 'chalet' | 'restaurant',
+  bounds: GroupsEnquiryDateBounds,
+): boolean {
+  const date = dateIso.trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  if (!groupsEnquiryIsDateInBounds(date, bounds)) return false;
+  const weekday = clockOnIsoDate(date).weekday;
+  return groupsEnquiryWeekdayHasService(venue, weekday);
 }
 
 export function defaultChaletLastAvailableDate(firstAvailableDate: string): string {
@@ -148,7 +376,7 @@ export function chaletInitialBookingSlot(
     if (isoDateCompare(dateIso, last) > 0) break;
     if (isoDateCompare(dateIso, first) < 0) continue;
 
-    const windows = chaletServiceWindows(cursor.weekday);
+    const windows = chaletBookableWindows(cursor.weekday);
     if (!windows) continue;
 
     const isToday = dateIso === todayIso && todayInSeason;
@@ -156,8 +384,7 @@ export function chaletInitialBookingSlot(
       ? zurichClock(now).hour * 60 + zurichClock(now).minute + CHALET_LEAD_MINUTES
       : 0;
 
-    for (const [windowStart, windowEnd] of windows) {
-      const lastBookableStart = windowEnd - CHALET_LAST_SLOT_BEFORE_WINDOW_END_MINUTES;
+    for (const [windowStart, lastBookableStart] of windows) {
       let candidate = Math.max(minFromNow, windowStart);
       candidate = Math.ceil(candidate / CHALET_SLOT_ROUND_MINUTES) * CHALET_SLOT_ROUND_MINUTES;
       if (candidate <= lastBookableStart) {
@@ -170,7 +397,7 @@ export function chaletInitialBookingSlot(
   }
 
   const fallbackDay = clockOnIsoDate(first);
-  const windows = chaletServiceWindows(fallbackDay.weekday) ?? [[11 * 60 + 30, 14 * 60]];
+  const windows = chaletBookableWindows(fallbackDay.weekday) ?? [[11 * 60 + 30, 14 * 60]];
   const [windowStart] = windows[0]!;
   return {
     startDate: first,

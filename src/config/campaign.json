@@ -15,7 +15,7 @@
   "chaletBookingUrl": "https://mytools.aleno.me/reservations/v2.0/reservations.html?k=eyJrIjoid2l2dTVrM2lsNm15cnBiOWlwdzZ4bmViajhycnVkaWRpZ280bGZwODBsbzlhNGlweTEiLCJyIjoiNGlucEYySGlDY2NuOTc4anAiLCJzIjoiaHR0cHM6Ly9teXRvb2xzLmFsZW5vLm1lLyJ9&shifts=Chalet+razzo",
   "chaletFirstAvailableDate": "2026-11-03",
   "chaletLastAvailableDate": "2027-01-31",
-  "groupsEnquiryEmail": "ciao@razzo.sg",
+  "groupsEnquiryEmail": "ciao@razzosg.ch",
   "pages": {
     "buchen": {
       "kind": "booking",

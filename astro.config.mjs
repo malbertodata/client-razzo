@@ -1,10 +1,28 @@
+import './lib/load-env.mjs';
 import { defineConfig } from 'astro/config';
+import { dispatchGroupsEnquiryApi } from './lib/groups-enquiry-http.mjs';
 
 const campaign = 'fondue+chalet+2026';
 
 export default defineConfig({
   site: 'https://www.razzosg.ch',
   output: 'static',
+  vite: {
+    plugins: [
+      {
+        name: 'groups-enquiry-api-dev',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            dispatchGroupsEnquiryApi(req, res)
+              .then((handled) => {
+                if (!handled) next();
+              })
+              .catch(next);
+          });
+        },
+      },
+    ],
+  },
   redirects: {
     '/': '/reservieren',
     '/buchen': '/reservieren',

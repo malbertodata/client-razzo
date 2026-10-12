@@ -17,6 +17,8 @@ RUN npm ci --omit=dev 2>/dev/null || npm install --omit=dev
 COPY --from=build /app/dist ./dist
 COPY server.mjs ./
 COPY lib ./lib
+COPY src/lib ./src/lib
+COPY src/config ./src/config
 ENV PORT=3000
 EXPOSE 3000
-CMD ["node", "server.mjs"]
+CMD ["node", "--import", "tsx", "server.mjs"]

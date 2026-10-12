@@ -31,12 +31,15 @@ Edit [`src/config/campaign.json`](../src/config/campaign.json) — copy, UTMs, A
 ## Local dev
 
 ```bash
-cp .env.example .env   # optional: analytics IDs
+cp .env.example .env
+# Paste Coolify runtime secrets into .env (e.g. RESEND_API_KEY) — not fetched from Coolify automatically
 npm install
 npm run dev
 ```
 
 Open http://localhost:4321/reservieren
+
+Gruppenanfrage + Resend: with `RESEND_API_KEY` in `.env`, submit the form or `POST /api/groups-enquiry` on port 4321 (`npm run dev` loads `.env` and runs the API with tsx). Same vars as Coolify **runtime** on `razzosg-landings`. Preview: `npm run build && npm run preview` (port 3000). If send fails with the generic error, check the terminal for `groups-enquiry api error` or retry after restarting `npm run dev`.
 
 Short links (same redirects as production; `npm run dev` on port **4321**):
 
@@ -61,7 +64,8 @@ UMAMI_WEBSITE_ID=… ANALYTICS_PROXY_PATH=… npm run preview
 1. Point **www.razzosg.ch** and **razzosg.ch** at this app (**FQDN order:** `https://www.razzosg.ch,https://razzosg.ch`; redirect **www**).
 2. Set build args / env: `PUBLIC_UMAMI_WEBSITE_ID`, `PUBLIC_ANALYTICS_PROXY_PATH` (same token as Razzo NFC site).
 3. Set runtime env on the container: `UMAMI_WEBSITE_ID`, `ANALYTICS_PROXY_PATH`, optional `UMAMI_UPSTREAM_URL`.
-4. Build command: `npm run build` — start command: `node server.mjs`.
-5. Proxy / HTTPS / token rotation: [coolify-proxy-operations.md](coolify-proxy-operations.md).
+4. Gruppenanfrage e-mail (Resend): `RESEND_API_KEY`, optional `GROUPS_ENQUIRY_FROM` (default `ciao@razzosg.ch`), `GROUPS_ENQUIRY_TO` (default `markusalbert@me.com`). Domain `razzosg.ch` must be verified in Resend.
+5. Build command: `npm run build` — start command: `node --import tsx server.mjs`.
+6. Proxy / HTTPS / token rotation: [coolify-proxy-operations.md](coolify-proxy-operations.md).
 
 WordPress at `www.razzo.sg` is unchanged.

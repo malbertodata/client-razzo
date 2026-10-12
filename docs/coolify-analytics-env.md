@@ -42,3 +42,14 @@ npm run build
 npm run preview
 # http://localhost:3000/buchen — Network: /a2a2ab20899f180a873248bcf4cc6695/stats
 ```
+
+## Custom events (booking page)
+
+| Event | When | Data |
+|-------|------|------|
+| `fondue_click` | Chalet / Restaurant booking buttons | `link`: `chalet` \| `restaurant` |
+| `locale_switch` | Language switcher (de / en link) | `to`: `de` \| `en` |
+| `groups_enquiry_open` | Gruppenanfrage sheet opened | `locale`: `de` \| `en` |
+| `groups_enquiry_submit` | Gruppenanfrage sent successfully (Resend) | `locale`, `venue`: `chalet` \| `restaurant` |
+
+No names, e-mails, or group sizes in event payloads (PII stays out of analytics).

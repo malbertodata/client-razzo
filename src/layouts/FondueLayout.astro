@@ -1,10 +1,12 @@
 ---
 import type { CampaignConfig, FonduePageConfig } from '@/lib/campaign';
-import { resolveChaletEmbeddedWidgetUrl, resolveRestaurantWidgetUrl } from '@/lib/aleno';
+import {
+  resolveChaletEmbeddedWidgetUrl,
+  resolveRestaurantWidgetUrl,
+  zurichTodayIso,
+} from '@/lib/aleno';
 import { analyticsScriptSrc, deferredAnalyticsBootScript } from '@/lib/analytics';
 import {
-  groupsEnquiryFieldLabels,
-  groupsEnquiryMailtoHref,
   htmlLang,
   legalUrls,
   switchLocalePath,
@@ -48,10 +50,14 @@ const chaletWidgetUrl = resolveChaletEmbeddedWidgetUrl(
   chaletSeasonLast,
 );
 const restaurantWidgetUrl = resolveRestaurantWidgetUrl(config.restaurantWidgetUrl, reservationCtx);
-const groupsEmail = config.groupsEnquiryEmail?.trim() || 'ciao@razzo.sg';
+const groupsEmail = config.groupsEnquiryEmail?.trim() || 'ciao@razzosg.ch';
 const contactEmailHref = `mailto:${groupsEmail}`;
-const groupsMailto = groupsEnquiryMailtoHref({ email: groupsEmail, locale });
-const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
+const groupsChaletDateMin = chaletSeasonFirst;
+const groupsChaletDateMax = '2027-01-30';
+const groupsRestaurantDateMin = zurichTodayIso(new Date());
+const groupsSizeMin = 9;
+const groupsSizeMax = 80;
+const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
 ---
 
 <!doctype html>
@@ -501,6 +507,20 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         border-color: rgba(255, 255, 255, 0.55);
         background: rgba(255, 255, 255, 0.05);
       }
+      .fondue-groups-enquiry-note {
+        margin: 0;
+        padding: 0.125rem 0.25rem;
+        text-align: center;
+        font-size: 0.8125rem;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        color: oklch(72% 0.006 264.542);
+      }
+      @media (min-width: 1024px) {
+        .fondue-groups-enquiry-note {
+          font-size: 0.875rem;
+        }
+      }
       body.fondue-groups-open {
         overflow: hidden;
       }
@@ -508,96 +528,744 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         position: fixed;
         inset: 0;
         z-index: 210;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding: 0.625rem;
+        display: grid;
+        grid-template-columns: var(--nfc-logo-gutter) minmax(0, 1fr) var(--nfc-lang-gutter);
+        grid-template-rows: minmax(0, 1fr);
+        box-sizing: border-box;
+        padding-top: max(0.625rem, env(safe-area-inset-top));
         padding-bottom: max(0.625rem, env(safe-area-inset-bottom));
+        pointer-events: none;
       }
       .fondue-groups-sheet[hidden] {
         display: none;
       }
       .fondue-groups-sheet-backdrop {
-        position: absolute;
+        position: fixed;
         inset: 0;
+        z-index: 0;
         border: none;
         padding: 0;
         background: rgba(0, 0, 0, 0.72);
-        cursor: pointer;
+        cursor: default;
+        pointer-events: auto;
       }
       .fondue-groups-sheet-panel {
         position: relative;
         z-index: 1;
-        width: min(100%, 24rem);
+        grid-column: 2;
+        grid-row: 1;
+        place-self: center center;
+        width: min(100%, 22rem);
+        pointer-events: auto;
         max-height: calc(
           100dvh - 1.25rem - env(safe-area-inset-top) - env(safe-area-inset-bottom)
         );
-        overflow: visible;
+        overflow-x: hidden;
+        overflow-y: auto;
         padding: 0.875rem 1rem 0.75rem;
         border: 1.5px solid rgba(255, 255, 255, 0.5);
         background: #000;
         color: inherit;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
           'Courier New', monospace;
-        font-size: 0.75rem;
+        font-size: 0.875rem;
         line-height: 1.35;
         letter-spacing: 0.02em;
       }
+      .fondue-groups-sheet-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        min-height: 2.75rem;
+        margin-bottom: 0.625rem;
+      }
       .fondue-groups-sheet-title {
-        margin: 0 0 0.5rem;
+        margin: 0;
+        flex: 1;
+        min-width: 0;
         font: inherit;
-        font-size: 0.8125rem;
+        font-size: 1rem;
+        line-height: 1.25;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         color: #fff;
       }
-      .fondue-groups-sheet-intro {
-        margin: 0 0 0.625rem;
-        color: oklch(72% 0.006 264.542);
-      }
-      .fondue-groups-sheet-meta {
-        margin: 0 0 0.625rem;
-        display: grid;
-        gap: 0.35rem;
-      }
-      .fondue-groups-sheet-row {
-        display: grid;
-        grid-template-columns: 4.75rem 1fr;
-        gap: 0.375rem;
-        align-items: baseline;
-      }
-      .fondue-groups-sheet-row dt {
-        margin: 0;
-        color: oklch(58% 0.006 264.542);
-      }
-      .fondue-groups-sheet-row dd {
-        margin: 0;
-        word-break: break-word;
+      .fondue-groups-sheet-close {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        margin: 0 -0.5rem 0 0;
+        padding: 0;
+        border: none;
+        background: transparent;
         color: oklch(88% 0.006 264.542);
+        font-family: inherit;
+        font-size: 2rem;
+        font-weight: 300;
+        line-height: 1;
+        cursor: pointer;
+        transition: color 0.15s ease, opacity 0.15s ease;
       }
-      .fondue-groups-sheet-fields-title {
-        margin: 0 0 0.35rem;
-        color: oklch(58% 0.006 264.542);
+      .fondue-groups-sheet-close:hover {
+        color: #fff;
       }
-      .fondue-groups-sheet-fields {
-        margin: 0 0 0.75rem;
-        padding: 0.5rem 0.625rem;
-        list-style: none;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        background: rgba(255, 255, 255, 0.04);
+      .fondue-groups-sheet-close:focus-visible {
+        color: #fff;
+        outline: 1px solid rgba(255, 255, 255, 0.45);
+        outline-offset: 2px;
+      }
+      .fondue-groups-form {
         display: flex;
         flex-direction: column;
+        gap: 0.625rem;
+        margin: 0;
+      }
+      .fondue-groups-step {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .fondue-groups-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 0;
+      }
+      .fondue-groups-field--date,
+      .fondue-groups-field--size,
+      .fondue-groups-field--contact-lead,
+      .fondue-groups-field--notes {
+        margin-top: 0;
+      }
+      .fondue-groups-step[data-groups-step='2'] {
+        padding-top: 0.75rem;
+      }
+      .fondue-groups-field label,
+      .fondue-groups-field-label,
+      .fondue-groups-fieldset legend {
+        margin: 0;
+        color: oklch(58% 0.006 264.542);
+      }
+      .fondue-groups-date-picker {
+        margin-top: 0.25rem;
+        padding: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .fondue-groups-date-picker--picked {
+        padding: 0.35rem 0.5rem;
+      }
+      .fondue-groups-cal-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+      .fondue-groups-cal-summary[hidden],
+      .fondue-groups-cal-panel[hidden],
+      .fondue-groups-time-picker[hidden] {
+        display: none;
+      }
+      .fondue-groups-cal-summary-value {
+        display: flex;
+        flex-direction: column;
+        gap: 0.05rem;
+        margin: 0;
+        color: #fff;
+        font-size: 0.875rem;
+        line-height: 1.35;
+      }
+      .fondue-groups-cal-summary-value-line {
+        display: block;
+        text-transform: capitalize;
+      }
+      .fondue-groups-cal-summary-change {
+        flex-shrink: 0;
+        padding: 0.25rem 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: transparent;
+        color: oklch(88% 0.006 264.542);
+        font: inherit;
+        font-size: 0.75rem;
+        line-height: 1.2;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+      }
+      .fondue-groups-cal-summary-change:hover,
+      .fondue-groups-cal-summary-change:focus-visible {
+        border-color: rgba(255, 255, 255, 0.55);
+        color: #fff;
+        outline: none;
+      }
+      .fondue-groups-cal-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .fondue-groups-cal-title {
+        flex: 1;
+        text-align: center;
+        color: #fff;
+        font-size: 0.8125rem;
+        letter-spacing: 0.03em;
+        text-transform: capitalize;
+      }
+      .fondue-groups-cal-nav-btn {
+        flex-shrink: 0;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        font-size: 1.125rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .fondue-groups-cal-nav-btn:hover:not(:disabled),
+      .fondue-groups-cal-nav-btn:focus-visible:not(:disabled) {
+        border-color: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.06);
+        outline: none;
+      }
+      .fondue-groups-cal-nav-btn:disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+      }
+      .fondue-groups-cal-weekdays,
+      .fondue-groups-cal-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
         gap: 0.2rem;
+      }
+      .fondue-groups-cal-weekdays {
+        margin-bottom: 0.35rem;
+        color: oklch(58% 0.006 264.542);
+        font-size: 0.6875rem;
+        text-align: center;
+      }
+      .fondue-groups-cal-pad {
+        display: block;
+        min-height: 2rem;
+      }
+      .fondue-groups-cal-day {
+        min-height: 2rem;
+        padding: 0;
+        border: 1px solid transparent;
+        background: transparent;
+        color: oklch(88% 0.006 264.542);
+        font: inherit;
+        font-size: 0.8125rem;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        cursor: pointer;
+      }
+      .fondue-groups-cal-day:hover:not(:disabled),
+      .fondue-groups-cal-day:focus-visible:not(:disabled) {
+        border-color: rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        outline: none;
+      }
+      .fondue-groups-cal-day--selected {
+        border-color: rgba(255, 255, 255, 0.65);
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+      }
+      .fondue-groups-cal-day--disabled,
+      .fondue-groups-cal-day:disabled {
+        opacity: 0.22;
+        cursor: not-allowed;
+      }
+      .fondue-groups-field[hidden],
+      .fondue-groups-field--time[hidden] {
+        display: none !important;
+      }
+      .fondue-groups-time-windows {
+        margin-top: 0.25rem;
+      }
+      .fondue-groups-time-tabs {
+        display: flex;
+        flex-direction: column;
+      }
+      .fondue-groups-time-tablist {
+        display: flex;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-bottom: 0;
+      }
+      .fondue-groups-time-tab {
+        flex: 1 1 0;
+        min-width: 0;
+        padding: 0.5rem 0.4rem;
+        border: 0;
+        border-right: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.02);
+        color: oklch(58% 0.006 264.542);
+        font: inherit;
+        font-size: 0.75rem;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        line-height: 1.25;
+        text-align: center;
+        cursor: pointer;
+      }
+      .fondue-groups-time-tab:last-child {
+        border-right: 0;
+      }
+      .fondue-groups-time-tab:hover,
+      .fondue-groups-time-tab:focus-visible {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.06);
+        outline: none;
+      }
+      .fondue-groups-time-tab--selected {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+      .fondue-groups-time-tablist .fondue-groups-time-tab--selected {
+        box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.75);
+      }
+      .fondue-groups-field--time > .fondue-groups-field-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      .fondue-groups-time-window {
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .fondue-groups-time-tabs:not(:has(.fondue-groups-time-tablist)) .fondue-groups-time-window {
+        margin-top: 0;
+      }
+      .fondue-groups-time-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0;
+        padding: 0.35rem 0.25rem 0.5rem;
+      }
+      .fondue-groups-time-grid[hidden] {
+        display: none;
+      }
+      .fondue-groups-time-cell {
+        min-height: 2.25rem;
+        padding: 0.35rem 0.2rem;
+        border: 0;
+        background: transparent;
+        color: oklch(92% 0.006 264.542);
+        font: inherit;
+        font-size: 0.8125rem;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+        text-align: center;
+        cursor: pointer;
+      }
+      .fondue-groups-time-cell:hover,
+      .fondue-groups-time-cell:focus-visible {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+        outline: none;
+      }
+      .fondue-groups-time-cell--selected {
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        font-weight: 500;
+      }
+      .fondue-groups-time-empty {
+        margin: 0.35rem 0 0;
+        color: oklch(58% 0.006 264.542);
+        font-size: 0.8125em;
+      }
+      .fondue-groups-time-empty[hidden] {
+        display: none;
+      }
+      .fondue-groups-field input:not([type='radio']):not([type='range']),
+      .fondue-groups-field select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0.5rem 0.625rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 0;
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+        font: inherit;
+        letter-spacing: inherit;
+        color-scheme: dark;
+      }
+      .fondue-groups-field input:not([type='radio']):not([type='range']):focus-visible,
+      .fondue-groups-field select:focus-visible {
+        outline: none;
+        border-color: rgba(255, 255, 255, 0.55);
+        background: rgba(255, 255, 255, 0.07);
+      }
+      .fondue-groups-field--size label {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+      .fondue-groups-size-value {
+        color: #fff;
+        font-variant-numeric: tabular-nums;
+        transition: color 0.15s ease;
+      }
+      .fondue-groups-field--size-pending .fondue-groups-size-value {
+        font-size: 0.875em;
+        font-weight: 400;
+        animation: fondue-groups-size-pulse 1.8s ease-in-out infinite;
+      }
+      @keyframes fondue-groups-size-pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.45;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fondue-groups-field--size-pending .fondue-groups-size-value {
+          animation: none;
+        }
+      }
+      .fondue-groups-field input[type='range'] {
+        width: 100%;
+        margin: 0.25rem 0 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        -webkit-appearance: none;
+        appearance: none;
+        height: 1rem;
+        cursor: pointer;
+      }
+      .fondue-groups-field input[type='range']::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .fondue-groups-field input[type='range']::-moz-range-track {
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .fondue-groups-field input[type='range']::-moz-range-progress {
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+      .fondue-groups-field input[type='range']::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 1rem;
+        height: 1rem;
+        margin-top: calc((4px - 1rem) / 2);
+        border: none;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .fondue-groups-field input[type='range']::-moz-range-thumb {
+        width: 1rem;
+        height: 1rem;
+        border: none;
+        border-radius: 50%;
+        background: #fff;
+      }
+      .fondue-groups-field--size-pending .fondue-groups-size-ticks {
+        opacity: 0.85;
+      }
+      .fondue-groups-field input[type='range']:focus-visible {
+        outline: 1px solid rgba(255, 255, 255, 0.45);
+        outline-offset: 4px;
+      }
+      .fondue-groups-size-hint {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        display: none;
+        color: #fff;
+        line-height: 0;
+        opacity: 0;
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+      .fondue-groups-field--size-pending .fondue-groups-size-hint {
+        display: block;
+        animation:
+          fondue-groups-size-hint-in 0.4s ease-out 2s forwards,
+          fondue-groups-size-hint-sway 1.4s ease-in-out 2s infinite;
+      }
+      @keyframes fondue-groups-size-hint-in {
+        to {
+          opacity: 0.85;
+        }
+      }
+      @keyframes fondue-groups-size-hint-sway {
+        0%,
+        100% {
+          transform: translateX(-50%);
+        }
+        25% {
+          transform: translateX(calc(-50% - 5px));
+        }
+        75% {
+          transform: translateX(calc(-50% + 5px));
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fondue-groups-field--size-pending .fondue-groups-size-hint {
+          animation: fondue-groups-size-hint-in 0.4s ease-out 2s forwards;
+        }
+      }
+      .fondue-groups-size-ticks {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.2rem;
+        color: oklch(58% 0.006 264.542);
+        font-size: 0.75em;
+        font-variant-numeric: tabular-nums;
+      }
+      .fondue-groups-fieldset {
+        margin: 0;
+        padding: 0;
+        border: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
+      .fondue-groups-segment-track {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        padding: 2px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .fondue-groups-segment-thumb {
+        position: absolute;
+        top: 2px;
+        bottom: 2px;
+        left: 2px;
+        width: calc(50% - 2px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.12);
+        pointer-events: none;
+        transition: transform 0.2s ease;
+        will-change: transform;
+      }
+      .fondue-groups-segment-track:has(input[value='restaurant']:checked)
+        .fondue-groups-segment-thumb {
+        transform: translateX(calc(100% + 2px));
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .fondue-groups-segment-thumb {
+          transition: none;
+        }
+      }
+      .fondue-groups-segment-option {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.5rem;
+        padding: 0.375rem 0.5rem;
+        color: oklch(72% 0.006 264.542);
+        text-align: center;
+        line-height: 1.25;
+        cursor: pointer;
+        user-select: none;
+        transition: color 0.15s ease;
+      }
+      .fondue-groups-segment-option:has(:checked) {
+        color: #fff;
+      }
+      .fondue-groups-segment-option:has(input:focus-visible) {
+        outline: 1px solid rgba(255, 255, 255, 0.55);
+        outline-offset: 2px;
+      }
+      .fondue-groups-segment-option input {
+        position: absolute;
+        opacity: 0;
+        width: 1px;
+        height: 1px;
+        margin: 0;
+        pointer-events: none;
+      }
+      .fondue-groups-segment-option span {
+        font-size: 0.8125rem;
+        letter-spacing: 0.02em;
+      }
+      .fondue-groups-cancel-confirm {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1.25rem 1rem 1.5rem;
+        background: rgba(0, 0, 0, 0.88);
+      }
+      .fondue-groups-cancel-confirm[hidden] {
+        display: none;
+      }
+      .fondue-groups-cancel-confirm-text {
+        margin: 0;
+        color: oklch(88% 0.006 264.542);
+        font-size: 0.875rem;
+        line-height: 1.45;
+        text-align: center;
+      }
+      .fondue-groups-cancel-confirm-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .fondue-groups-submit-status {
+        margin: 0;
+        padding: 0.5rem 0.625rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        font-size: 0.875rem;
+        line-height: 1.45;
+        text-align: center;
+      }
+      .fondue-groups-submit-status[hidden] {
+        display: none !important;
+      }
+      .fondue-groups-submit-status--success {
+        border-color: rgba(255, 255, 255, 0.45);
+        color: oklch(92% 0.02 145);
+      }
+      .fondue-groups-submit-status--error {
+        border-color: rgba(255, 120, 120, 0.45);
+        color: oklch(88% 0.06 25);
+      }
+      .fondue-groups-form-body[hidden],
+      .fondue-groups-form-success[hidden] {
+        display: none !important;
+      }
+      .fondue-groups-form-stage--success .fondue-groups-form-body {
+        display: none !important;
+      }
+      .fondue-groups-form-success {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0.875rem;
+        padding: 1.25rem 0 0.5rem;
+        text-align: center;
+      }
+      .fondue-groups-form-stage--success .fondue-groups-form-success {
+        display: flex !important;
+      }
+      .fondue-groups-form-success {
+        container-type: inline-size;
+      }
+      .fondue-groups-form-success-check {
+        align-self: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        stroke: oklch(92% 0.02 145);
+        fill: none;
+      }
+      .fondue-groups-form-success-message {
+        margin: 0 0 0.5rem;
+        color: oklch(92% 0.02 145);
+        font-size: min(0.875rem, 4cqi);
+        line-height: 1.6;
+        white-space: pre;
+      }
+      .fondue-groups-form-success-instagram {
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 3rem;
+      }
+      .fondue-groups-form-success-instagram svg {
+        width: 1.125rem;
+        height: 1.125rem;
+        flex-shrink: 0;
+        stroke: currentColor;
+        fill: none;
+      }
+      .fondue-groups-form-success-instagram svg circle:last-of-type {
+        fill: currentColor;
+        stroke: none;
+      }
+      .fondue-groups-step[hidden] {
+        display: none;
+      }
+      .fondue-groups-field textarea {
+        width: 100%;
+        min-height: 4.5rem;
+        box-sizing: border-box;
+        padding: 0.5rem 0.625rem;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 0;
+        background: rgba(255, 255, 255, 0.04);
+        color: #fff;
+        font: inherit;
+        letter-spacing: inherit;
+        line-height: 1.35;
+        resize: vertical;
+      }
+      .fondue-groups-field textarea:focus-visible {
+        border-color: rgba(255, 255, 255, 0.55);
+        outline: none;
       }
       .fondue-groups-sheet-actions {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
+        margin-top: 0.25rem;
+      }
+      .fondue-groups-sheet-actions--split {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 0.375rem;
+      }
+      .fondue-groups-sheet-actions--split .fondue-groups-sheet-back {
+        flex: 0 0 25%;
+        min-width: 0;
+      }
+      .fondue-groups-sheet-actions--split .fondue-groups-sheet-primary {
+        flex: 1 1 0;
+        min-width: 0;
       }
       .fondue-groups-sheet-actions .nfc-link {
-        font-size: 0.9375rem;
-        padding: 0.75rem 1rem;
-        min-height: 0;
+        box-sizing: border-box;
+        height: 3rem;
+        min-height: 3rem;
+        max-height: 3rem;
+        padding: 0 1rem;
+        font-size: 1rem;
+        line-height: 1.2;
+      }
+      .fondue-groups-sheet-actions .nfc-link:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
       }
       .fondue-groups-sheet-actions .nfc-link--ghost {
         border-color: rgba(255, 255, 255, 0.28);
@@ -608,9 +1276,14 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         color: #fff;
         border-color: rgba(255, 255, 255, 0.45);
       }
-      @media (min-width: 480px) {
-        .fondue-groups-sheet {
-          align-items: center;
+      @media (max-width: 1023px) {
+        .fondue-groups-sheet-panel {
+          transform: translateX(calc((var(--nfc-lang-gutter) - var(--nfc-logo-gutter)) / 2));
+        }
+      }
+      @media (min-width: 1024px) {
+        .fondue-groups-sheet-panel {
+          transform: none;
         }
       }
       .nfc-link {
@@ -631,6 +1304,26 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
         font-weight: inherit;
         font-size: 1.125rem;
         width: 100%;
+      }
+      .fondue-groups-sheet-back-icon {
+        display: block;
+        flex-shrink: 0;
+        font-size: 1.75rem;
+        line-height: 1;
+      }
+      .fondue-groups-sheet-actions--split .nfc-link.fondue-groups-sheet-back {
+        padding-inline: 0.35rem;
+      }
+      .fondue-groups-form .fondue-groups-sheet-actions .nfc-link {
+        height: 3rem;
+        min-height: 3rem;
+        max-height: 3rem;
+        padding-block: 0;
+        padding-inline: 1rem;
+        font-size: 1rem;
+      }
+      .fondue-groups-form .fondue-groups-sheet-actions--split .nfc-link.fondue-groups-sheet-back {
+        padding-inline: 0.35rem;
       }
       .nfc-link:hover,
       .nfc-link:focus-visible {
@@ -930,7 +1623,9 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
               locale === 'de' ? (
                 <span class="nfc-lang-current" lang="de">de</span>
               ) : (
-                <a href={alternateLocaleHref} hreflang="de" lang="de">de</a>
+                <a href={alternateLocaleHref} hreflang="de" lang="de" data-locale-switch="de">
+                  de
+                </a>
               )
             }
           </li>
@@ -939,7 +1634,9 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
               locale === 'en' ? (
                 <span class="nfc-lang-current" lang="en">en</span>
               ) : (
-                <a href={alternateLocaleHref} hreflang="en" lang="en">en</a>
+                <a href={alternateLocaleHref} hreflang="en" lang="en" data-locale-switch="en">
+                  en
+                </a>
               )
             }
           </li>
@@ -1092,76 +1789,24 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
                 </nav>
                 <nav class="fondue-groups" aria-label={ui.bookingGroupsEnquiryNav}>
                   <hr class="fondue-divider" />
-                  <button
-                    type="button"
-                    class="nfc-link"
-                    data-groups-sheet-open
-                    data-mailto={groupsMailto}
-                    data-fondue-link="groups"
-                  >
-                    <span class="nfc-link-label">{ui.bookingGroupsEnquiryLabel}</span>
-                  </button>
+                  <div class="fondue-booking-option fondue-groups-enquiry">
+                    <button
+                      type="button"
+                      class="nfc-link"
+                      data-groups-sheet-open
+                      aria-describedby="fondue-groups-enquiry-note"
+                    >
+                      <span class="nfc-link-label">{ui.bookingGroupsEnquiryButtonLabel}</span>
+                    </button>
+                    <p class="fondue-groups-enquiry-note" id="fondue-groups-enquiry-note">
+                      {ui.bookingGroupsEnquiryButtonHint}
+                    </p>
+                  </div>
                 </nav>
                 </div>
               ) : null
             }
           </div>
-          {
-            isBooking ? (
-              <>
-                <div
-                  class="fondue-groups-sheet"
-                  id="fondue-groups-sheet"
-                  hidden
-                  role="dialog"
-                  aria-modal="true"
-                  aria-labelledby="fondue-groups-sheet-title"
-                >
-                  <button
-                    type="button"
-                    class="fondue-groups-sheet-backdrop"
-                    data-groups-sheet-backdrop
-                    tabindex="-1"
-                    aria-label={ui.bookingGroupsModalCancel}
-                  />
-                  <div class="fondue-groups-sheet-panel">
-                    <h2 class="fondue-groups-sheet-title" id="fondue-groups-sheet-title">
-                      {ui.bookingGroupsEnquiryLabel}
-                    </h2>
-                    <p class="fondue-groups-sheet-intro">{ui.bookingGroupsModalIntro}</p>
-                    <dl class="fondue-groups-sheet-meta">
-                      <div class="fondue-groups-sheet-row">
-                        <dt>{ui.bookingGroupsModalTo}</dt>
-                        <dd>{groupsEmail}</dd>
-                      </div>
-                      <div class="fondue-groups-sheet-row">
-                        <dt>{ui.bookingGroupsModalSubject}</dt>
-                        <dd>{ui.bookingGroupsEnquirySubject}</dd>
-                      </div>
-                    </dl>
-                    <p class="fondue-groups-sheet-fields-title">{ui.bookingGroupsModalFields}</p>
-                    <ul class="fondue-groups-sheet-fields">
-                      {groupsFieldLabels.map((label) => (
-                        <li>{label}</li>
-                      ))}
-                    </ul>
-                    <div class="fondue-groups-sheet-actions">
-                      <button type="button" class="nfc-link" data-groups-sheet-send>
-                        {ui.bookingGroupsModalOpen}
-                      </button>
-                      <button
-                        type="button"
-                        class="nfc-link nfc-link--ghost"
-                        data-groups-sheet-close
-                      >
-                        {ui.bookingGroupsModalCancel}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : null
-          }
         </div>
         <div class="nfc-site-footer">
           <nav class="nfc-footer" aria-label={ui.metaNav}>
@@ -1171,6 +1816,273 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
           </nav>
         </div>
       </div>
+      {
+        isBooking ? (
+          <div
+            class="fondue-groups-sheet"
+            id="fondue-groups-sheet"
+            hidden
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fondue-groups-sheet-title"
+          >
+            <button
+              type="button"
+              class="fondue-groups-sheet-backdrop"
+              data-groups-sheet-backdrop
+              tabindex="-1"
+              aria-hidden="true"
+            />
+            <div class="fondue-groups-sheet-panel">
+              <div class="fondue-groups-sheet-header">
+                <h2 class="fondue-groups-sheet-title" id="fondue-groups-sheet-title">
+                  {ui.bookingGroupsEnquiryModalTitle}
+                </h2>
+                <button
+                  type="button"
+                  class="fondue-groups-sheet-close"
+                  data-groups-sheet-close
+                  aria-label={ui.bookingGroupsModalClose}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </div>
+              <form
+                class="fondue-groups-form"
+                id="fondue-groups-form"
+                data-groups-form
+                data-groups-locale={locale}
+                data-submit-sending={ui.bookingGroupsFormSubmitSending}
+                data-submit-success={ui.bookingGroupsFormSubmitSuccess}
+                data-submit-error={ui.bookingGroupsFormSubmitError}
+                data-submit-invalid-email={ui.bookingGroupsFormEmailInvalid}
+                data-time-placeholder={ui.bookingGroupsFormTimePlaceholder}
+                data-time-closed={ui.bookingGroupsFormTimeClosed}
+                data-time-window-lunch={ui.bookingGroupsFormTimeWindowLunch}
+                data-time-window-dinner={ui.bookingGroupsFormTimeWindowDinner}
+                data-time-window-chalet-name={ui.bookingGroupsFormTimeWindowChaletName}
+                data-time-window-restaurant-name={ui.bookingGroupsFormTimeWindowRestaurantName}
+                data-date-closed={ui.bookingGroupsFormDateClosed}
+                data-date-closed-chalet={ui.bookingGroupsFormDateChaletClosed}
+                data-date-change={ui.bookingGroupsFormDateChange}
+                data-time-change={ui.bookingGroupsFormTimeChange}
+                data-group-size-choose={ui.bookingGroupsFormGroupSizeChoose}
+                data-chalet-date-min={groupsChaletDateMin}
+                data-chalet-date-max={groupsChaletDateMax}
+                data-restaurant-date-min={groupsRestaurantDateMin}
+                data-instagram-url={instagramUrl}
+              >
+                <div class="fondue-groups-form-stage">
+                  <div class="fondue-groups-form-body" id="fondue-groups-form-body">
+                    <p
+                      class="fondue-groups-submit-status"
+                      id="fondue-groups-submit-status"
+                      role="status"
+                      aria-live="polite"
+                      hidden
+                    />
+                    <div class="fondue-groups-step" data-groups-step="1">
+                <fieldset class="fondue-groups-fieldset">
+                  <legend>{ui.bookingGroupsFormVenue}</legend>
+                  <div class="fondue-groups-segment-track" role="radiogroup">
+                    <span class="fondue-groups-segment-thumb" aria-hidden="true"></span>
+                    <label class="fondue-groups-segment-option">
+                      <input type="radio" name="venue" value="chalet" required checked />
+                      <span>{ui.bookChalet}</span>
+                    </label>
+                    <label class="fondue-groups-segment-option">
+                      <input type="radio" name="venue" value="restaurant" required />
+                      <span>{ui.bookRestaurant}</span>
+                    </label>
+                  </div>
+                </fieldset>
+                <div class="fondue-groups-field fondue-groups-field--date">
+                  <span class="fondue-groups-field-label" id="fondue-groups-date-label">
+                    {ui.bookingGroupsFormDate}
+                  </span>
+                  <input type="hidden" id="fondue-groups-date" name="date" required value="" />
+                  <div
+                    class="fondue-groups-date-picker"
+                    id="fondue-groups-date-picker"
+                    role="group"
+                    aria-labelledby="fondue-groups-date-label"
+                  />
+                </div>
+                <div class="fondue-groups-field fondue-groups-field--time" id="fondue-groups-time-field" hidden>
+                  <span class="fondue-groups-field-label" id="fondue-groups-time-label">
+                    {ui.bookingGroupsFormTime}
+                  </span>
+                  <input type="hidden" id="fondue-groups-time" name="time" required value="" />
+                  <div
+                    class="fondue-groups-time-windows"
+                    id="fondue-groups-time-windows"
+                    role="group"
+                    aria-labelledby="fondue-groups-time-label"
+                  />
+                  <p class="fondue-groups-time-empty" id="fondue-groups-time-empty" hidden></p>
+                </div>
+                <p
+                  class="fondue-groups-field fondue-groups-field--size fondue-groups-field--size-pending"
+                  id="fondue-groups-size-field"
+                  hidden
+                >
+                  <label for="fondue-groups-size">
+                    <span>{ui.bookingGroupsFormGroupSize}</span>
+                    <output
+                      class="fondue-groups-size-value"
+                      id="fondue-groups-size-display"
+                      for="fondue-groups-size">{ui.bookingGroupsFormGroupSizeChoose}</output>
+                  </label>
+                  <input
+                    id="fondue-groups-size"
+                    name="groupSize"
+                    type="range"
+                    required
+                    min={groupsSizeMin}
+                    max={groupsSizeMax}
+                    step={1}
+                    value={groupsSizeDefault}
+                  />
+                  <span class="fondue-groups-size-ticks" aria-hidden="true">
+                    <span>{groupsSizeMin}</span>
+                    <span class="fondue-groups-size-hint">
+                      <svg viewBox="0 0 24 12" width="22" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 6h20M6 2 2 6l4 4M18 2l4 4-4 4" />
+                      </svg>
+                    </span>
+                    <span>{groupsSizeMax}</span>
+                  </span>
+                </p>
+                <div class="fondue-groups-sheet-actions">
+                  <button type="button" class="nfc-link" data-groups-step-next disabled>
+                    {ui.bookingGroupsFormContinue}
+                  </button>
+                </div>
+                </div>
+                <div class="fondue-groups-step" data-groups-step="2" hidden>
+                <p class="fondue-groups-field fondue-groups-field--contact-lead">
+                  <label for="fondue-groups-name">{ui.bookingGroupsFormName}</label>
+                  <input
+                    id="fondue-groups-name"
+                    name="name"
+                    type="text"
+                    required
+                    disabled
+                    autocomplete="name"
+                  />
+                </p>
+                <p class="fondue-groups-field">
+                  <label for="fondue-groups-phone">{ui.bookingGroupsFormPhone}</label>
+                  <input
+                    id="fondue-groups-phone"
+                    name="phone"
+                    type="tel"
+                    required
+                    disabled
+                    autocomplete="tel"
+                    inputmode="tel"
+                  />
+                </p>
+                <p class="fondue-groups-field">
+                  <label for="fondue-groups-email">{ui.bookingGroupsFormEmail}</label>
+                  <input
+                    id="fondue-groups-email"
+                    name="email"
+                    type="email"
+                    required
+                    disabled
+                    autocomplete="email"
+                    inputmode="email"
+                  />
+                </p>
+                <p class="fondue-groups-field fondue-groups-field--notes">
+                  <label for="fondue-groups-notes">{ui.bookingGroupsFormNotes}</label>
+                  <textarea
+                    id="fondue-groups-notes"
+                    name="notes"
+                    disabled
+                    rows={3}
+                  />
+                </p>
+                <div class="fondue-groups-sheet-actions fondue-groups-sheet-actions--split">
+                  <button
+                    type="button"
+                    class="nfc-link nfc-link--ghost fondue-groups-sheet-back"
+                    data-groups-step-back
+                    aria-label={ui.bookingGroupsFormBack}
+                  >
+                    <span class="fondue-groups-sheet-back-icon" aria-hidden="true">‹</span>
+                  </button>
+                  <button
+                    type="submit"
+                    class="nfc-link fondue-groups-sheet-primary"
+                    data-groups-submit
+                  >
+                    {ui.bookingGroupsFormSubmit}
+                  </button>
+                </div>
+                </div>
+                  </div>
+                  <div
+                    class="fondue-groups-form-success"
+                    id="fondue-groups-form-success"
+                    hidden
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <svg
+                      class="fondue-groups-form-success-check"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle cx="12" cy="12" r="10" stroke-width="1.25"></circle>
+                      <path d="M7.5 12.5l3 3 6-6.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <p class="fondue-groups-form-success-message" data-groups-success-message>
+                      {ui.bookingGroupsFormSubmitSuccess}
+                    </p>
+                    <a
+                      class="nfc-link fondue-groups-form-success-instagram"
+                      data-groups-success-instagram
+                      href={instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="5" ry="5" stroke-width="1.5"></rect>
+                        <circle cx="12" cy="12" r="4" stroke-width="1.5"></circle>
+                        <circle cx="17.2" cy="6.8" r="1"></circle>
+                      </svg>
+                      {ui.bookingGroupsFormSubmitSuccessInstagram}
+                    </a>
+                  </div>
+                </div>
+              </form>
+              <div
+                class="fondue-groups-cancel-confirm"
+                id="fondue-groups-cancel-confirm"
+                hidden
+                role="alertdialog"
+                aria-modal="true"
+                aria-describedby="fondue-groups-cancel-confirm-text"
+              >
+                <p class="fondue-groups-cancel-confirm-text" id="fondue-groups-cancel-confirm-text">
+                  {ui.bookingGroupsModalCancelMessage}
+                </p>
+                <div class="fondue-groups-cancel-confirm-actions">
+                  <button type="button" class="nfc-link" data-groups-cancel-dismiss>
+                    {ui.bookingGroupsModalCancelDismiss}
+                  </button>
+                  <button type="button" class="nfc-link nfc-link--ghost" data-groups-cancel-confirm>
+                    {ui.bookingGroupsModalCancelConfirm}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null
+      }
     </main>
     {
       isBooking ? (
@@ -1198,16 +2110,29 @@ const groupsFieldLabels = groupsEnquiryFieldLabels(ui.bookingGroupsEnquiryBody);
       ) : null
     }
     <script is:inline>
+      const safeTrack = (name, data) => {
+        const track = window.umami?.track;
+        if (typeof track !== 'function') return;
+        try {
+          track(name, data);
+        } catch {
+          /* optional */
+        }
+      };
+
       document.querySelectorAll('[data-fondue-link]').forEach((el) => {
         el.addEventListener('click', () => {
           const id = el.getAttribute('data-fondue-link');
-          const track = window.umami?.track;
-          if (!id || typeof track !== 'function') return;
-          try {
-            track('fondue_click', { link: id });
-          } catch {
-            /* optional */
-          }
+          if (!id) return;
+          safeTrack('fondue_click', { link: id });
+        });
+      });
+
+      document.querySelectorAll('[data-locale-switch]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const to = el.getAttribute('data-locale-switch');
+          if (to !== 'de' && to !== 'en') return;
+          safeTrack('locale_switch', { to });
         });
       });
     </script>

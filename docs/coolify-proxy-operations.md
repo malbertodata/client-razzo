@@ -96,6 +96,48 @@ Expect **Let's Encrypt**, not `TRAEFIK DEFAULT CERT`.
 
 Then in Coolify: **Server → Proxy → Redirect HTTP→HTTPS** on, **razzosg-landings → Force HTTPS** on, redeploy app.
 
+## DNS (Cloudflare) — razzosg.ch
+
+Zone **`razzosg.ch`** lives in the **Client Podium** Cloudflare account. Traefik renewals use **DNS-01** (token above); public web records are separate from ACME TXT records.
+
+### Records
+
+| Name | Type | Content | Proxy |
+|------|------|---------|--------|
+| `@` | **A** | `116.203.69.21` | **Proxied** (orange cloud) |
+| `www` | **A** | `116.203.69.21` | **Proxied** (orange cloud) |
+| `@` / `www` | **AAAA** | — | **Do not add** origin IPv6 until Hetzner IPv6 + firewall + Traefik are verified (see below) |
+
+Do **not** mix **proxied A** with **DNS-only AAAA** — that caused ACME/HTTPS flakiness in the past.
+
+### Cloudflare settings
+
+- **SSL/TLS → Overview:** **Full (strict)** while Traefik serves **Let's Encrypt** on the origin. Avoid **Flexible**.
+- **Network → IPv6 compatibility:** **On** — visitors can use IPv6 at the Cloudflare edge without an origin **AAAA** record.
+
+### Verify (from your Mac)
+
+```bash
+dig +short A www.razzosg.ch
+# Proxied: Cloudflare anycast IPs (not 116.203.69.21)
+# DNS-only: 116.203.69.21 — turn proxy on in the dashboard
+
+dig +short AAAA www.razzosg.ch
+# May show Cloudflare AAAA when proxied; no manual origin AAAA in DNS tab
+
+curl -sSI https://www.razzosg.ch/ | grep -i cf-ray
+# Proxied: cf-ray header present
+
+echo | openssl s_client -connect www.razzosg.ch:443 -servername www.razzosg.ch 2>/dev/null | openssl x509 -noout -issuer -dates
+# Expect Let's Encrypt (or valid edge chain), not TRAEFIK DEFAULT CERT
+```
+
+### Optional origin AAAA (later only)
+
+1. Hetzner: stable primary IPv6; firewall allows **80/443** on IPv6.  
+2. On server: `curl -6 -I http://[<ipv6>]/ping` and HTTPS with SNI succeed **direct to origin**.  
+3. In Cloudflare: add **AAAA** (same names as **A**), **Proxied**. Re-run openssl and watch Traefik ACME through one renewal.
+
 ## Sync Coolify UI with disk (after token rotation)
 
 1. On server: `cat /data/coolify/proxy/docker-compose.yml` (confirm rotated `CF_DNS_API_TOKEN`).

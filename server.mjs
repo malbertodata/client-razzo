@@ -1,3 +1,4 @@
+import './lib/load-env.mjs';
 import { createServer } from 'node:http';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +8,7 @@ import {
   mainSiteOrigin,
   shouldKeep404,
 } from './lib/fallback-redirect.mjs';
+import { dispatchGroupsEnquiryApi } from './lib/groups-enquiry-http.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dist = join(__dirname, 'dist');
@@ -156,6 +158,10 @@ createServer(async (req, res) => {
     if (decision.kind === 'deny') {
       res.writeHead(403);
       res.end('Forbidden');
+      return;
+    }
+
+    if (await dispatchGroupsEnquiryApi(req, res)) {
       return;
     }
 

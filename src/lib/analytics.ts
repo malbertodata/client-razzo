@@ -26,3 +26,15 @@ export function analyticsScriptSrc(proxyPath: string | undefined, scriptName = '
   const script = scriptName.trim() || 'stats';
   return `/${token}/${script}`;
 }
+
+/** Custom Umami events (no PII in `data`). Safe if analytics script is not loaded yet. */
+export function trackUmamiEvent(name: string, data?: Record<string, string>): void {
+  if (typeof window === 'undefined') return;
+  const track = window.umami?.track;
+  if (typeof track !== 'function') return;
+  try {
+    track(name, data);
+  } catch {
+    /* optional */
+  }
+}

@@ -23,6 +23,59 @@ export function buildFondueUtmSearchParams(input: {
   return params;
 }
 
+export type GroupsEnquiryUtmAttribution = {
+  source: string;
+  medium: string;
+  content: string;
+  campaign: string;
+};
+
+const EMPTY_UTM: GroupsEnquiryUtmAttribution = {
+  source: '',
+  medium: '',
+  content: '',
+  campaign: '',
+};
+
+export function parseGroupsEnquiryUtm(params: URLSearchParams): GroupsEnquiryUtmAttribution {
+  const read = (key: string) => params.get(key)?.trim().replace(/\+/g, ' ') ?? '';
+  return {
+    source: read('utm_source'),
+    medium: read('utm_medium'),
+    content: read('utm_content'),
+    campaign: read('utm_campaign'),
+  };
+}
+
+export function hasGroupsEnquiryUtm(utm: GroupsEnquiryUtmAttribution): boolean {
+  return Boolean(utm.source || utm.medium || utm.content || utm.campaign);
+}
+
+/** German inbox label for the intro line («… über XYZ eingetroffen»). Only known `utm_content` values. */
+export function formatGroupsEnquiryUtmChannelLabel(utm: GroupsEnquiryUtmAttribution): string | null {
+  const contentKey = utm.content.toLowerCase();
+  const byContent: Record<string, string> = {
+    firmenfeier: 'Firmenfeier (Brief)',
+    vereinsfeier: 'Vereinsfeier (Brief)',
+    praxisfeier: 'Praxisfeier (Brief)',
+    'fondue chalet': 'Fondue-Chalet-Poster (QR)',
+  };
+  return byContent[contentKey] ?? null;
+}
+
+export function normalizeGroupsEnquiryUtmInput(raw: unknown): GroupsEnquiryUtmAttribution {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { ...EMPTY_UTM };
+  const record = raw as Record<string, unknown>;
+  const clip = (value: unknown, max = 120) =>
+    typeof value === 'string' ? value.trim().replace(/\+/g, ' ').slice(0, max) : '';
+  return {
+    source: clip(record.source),
+    medium: clip(record.medium),
+    content: clip(record.content),
+    campaign: clip(record.campaign),
+  };
+}
+
 export function fondueBookingHref(input: {
   config: CampaignConfig;
   fromPageUtm: FondueUtm;

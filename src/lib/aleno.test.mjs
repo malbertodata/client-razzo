@@ -9,10 +9,17 @@ import {
   resolveRestaurantWidgetUrl,
   alenoTimeUtcParamFromZurichLocal,
   chaletInitialBookingSlot,
+  chaletBookableTimesForWeekday,
+  groupsEnquiryBookableTimes,
+  groupsEnquiryBookableTimeWindows,
+  groupsEnquiryChaletClosedWeekday,
+  groupsEnquiryIsValidDate,
+  groupsEnquiryWeekdayHasService,
+  restaurantBookableTimesForWeekday,
   restaurantInitialBookingSlot,
   withFreshWidgetSession,
 } from './aleno.ts';
-import { groupsEnquiryMailtoHref } from './i18n.ts';
+import { groupsEnquiryMailtoFromForm } from './i18n.ts';
 
 const chaletBase =
   'https://mytools.aleno.me/reservations/v2.0/reservations.html?k=test&shifts=Chalet+razzo';
@@ -119,8 +126,111 @@ test('chaletInitialBookingSlot uses dinner after lunch during season', () => {
   assert.equal(slot.localTime, '17:30');
 });
 
-test('groupsEnquiryMailtoHref uses percent-encoding so mail body has spaces not plus signs', () => {
-  const href = groupsEnquiryMailtoHref({ email: 'ciao@razzo.sg', locale: 'de' });
-  assert.match(href, /Fondue%20Chalet%20oder%20Restaurant/);
+test('chaletBookableTimesForWeekday matches Aleno 15-minute shift grids', () => {
+  const tue = chaletBookableTimesForWeekday(2);
+  assert.deepEqual(tue.slice(0, 4), ['11:30', '11:45', '12:00', '12:15']);
+  assert.equal(tue.filter((t) => t < '17:30').at(-1), '14:00');
+  assert.ok(tue.includes('13:45'));
+  assert.ok(!tue.includes('21:00'));
+  assert.equal(tue.filter((t) => t >= '17:30').at(-1), '20:30');
+  assert.ok(tue.includes('19:45'));
+
+  const sat = chaletBookableTimesForWeekday(6);
+  assert.equal(sat[0], '11:00');
+  assert.ok(!sat.includes('09:00'));
+  assert.ok(sat.includes('11:15'));
+  assert.equal(sat.filter((t) => t <= '16:00').at(-1), '16:00');
+  assert.equal(sat.at(-1), '21:00');
+  assert.ok(sat.includes('15:45'));
+  assert.ok(sat.includes('16:00'));
+  assert.equal(chaletBookableTimesForWeekday(0).length, 0);
+});
+
+test('restaurantBookableTimesForWeekday respects open hours and online cutoff', () => {
+  const wed = restaurantBookableTimesForWeekday(3);
+  assert.equal(wed[0], '09:00');
+  assert.equal(wed.filter((t) => t < '17:30').at(-1), '14:00');
+  assert.ok(!wed.includes('15:00'));
+  assert.equal(wed.filter((t) => t >= '17:30').at(-1), '20:00');
+  const sat = restaurantBookableTimesForWeekday(6);
+  assert.equal(sat.filter((t) => t >= '17:30').at(-1), '21:00');
+});
+
+test('groupsEnquiryBookableTimeWindows splits restaurant lunch and dinner', () => {
+  const windows = groupsEnquiryBookableTimeWindows('2026-10-07', 'restaurant');
+  assert.equal(windows.length, 2);
+  assert.equal(windows[0]?.key, 'lunch');
+  assert.equal(windows[1]?.key, 'dinner');
+  assert.equal(windows[0]?.rangeStart, '09:00');
+  assert.equal(windows[0]?.rangeEnd, '14:00');
+  assert.equal(windows[1]?.rangeStart, '17:30');
+  assert.equal(windows[1]?.rangeEnd, '20:00');
+});
+
+test('groupsEnquiryBookableTimes uses ISO date weekday', () => {
+  const times = groupsEnquiryBookableTimes('2026-11-03', 'chalet');
+  assert.ok(times.includes('17:30'));
+  assert.ok(times.includes('11:30'));
+});
+
+test('groupsEnquiryBookableTimeWindows splits chalet lunch and dinner', () => {
+  const windows = groupsEnquiryBookableTimeWindows('2026-11-05', 'chalet');
+  assert.equal(windows.length, 2);
+  assert.equal(windows[0]?.key, 'lunch');
+  assert.equal(windows[1]?.key, 'dinner');
+  assert.ok(windows[0]?.times.includes('11:30'));
+  assert.ok(!windows[0]?.times.includes('17:30'));
+  assert.ok(windows[1]?.times.includes('17:30'));
+  assert.ok(!windows[1]?.times.includes('11:30'));
+  assert.equal(windows[0]?.rangeStart, '11:30');
+  assert.equal(windows[0]?.rangeEnd, '14:00');
+  assert.equal(windows[1]?.rangeStart, '17:30');
+  assert.equal(windows[1]?.rangeEnd, '20:30');
+  assert.ok(windows[1]?.times.includes('19:45'));
+});
+
+test('groupsEnquiryBookableTimeWindows splits chalet saturday shifts', () => {
+  const windows = groupsEnquiryBookableTimeWindows('2026-11-07', 'chalet');
+  assert.equal(windows.length, 2);
+  assert.equal(windows[0]?.key, 'lunch');
+  assert.equal(windows[1]?.key, 'dinner');
+  assert.equal(windows[0]?.rangeStart, '11:00');
+  assert.equal(windows[0]?.rangeEnd, '16:00');
+  assert.equal(windows[1]?.rangeStart, '16:00');
+  assert.equal(windows[1]?.rangeEnd, '21:00');
+});
+
+test('groupsEnquiryIsValidDate respects season bounds and venue weekdays', () => {
+  const chaletBounds = { min: '2026-11-03', max: '2027-01-30' };
+  const restaurantBounds = { min: '2026-10-01', max: '' };
+  assert.equal(groupsEnquiryIsValidDate('2026-11-02', 'chalet', chaletBounds), false);
+  assert.equal(groupsEnquiryIsValidDate('2026-11-03', 'chalet', chaletBounds), true);
+  assert.equal(groupsEnquiryWeekdayHasService('chalet', 1), false);
+  assert.equal(groupsEnquiryWeekdayHasService('restaurant', 1), true);
+  assert.equal(groupsEnquiryIsValidDate('2026-11-09', 'chalet', chaletBounds), false);
+  assert.equal(groupsEnquiryChaletClosedWeekday(1), true);
+  assert.equal(groupsEnquiryChaletClosedWeekday(0), true);
+  assert.equal(groupsEnquiryIsValidDate('2026-11-08', 'chalet', chaletBounds), false);
+  assert.equal(groupsEnquiryIsValidDate('2026-11-09', 'restaurant', chaletBounds), true);
+  assert.equal(groupsEnquiryIsValidDate('2026-10-15', 'restaurant', restaurantBounds), true);
+  assert.equal(groupsEnquiryIsValidDate('2026-10-15', 'chalet', chaletBounds), false);
+});
+
+test('groupsEnquiryMailtoFromForm uses percent-encoding so mail body has spaces not plus signs', () => {
+  const href = groupsEnquiryMailtoFromForm({
+    email: 'ciao@razzo.sg',
+    locale: 'de',
+    values: {
+      date: '2026-11-05',
+      time: '19:00',
+      venue: 'chalet',
+      groupSize: '12',
+      name: 'Max Muster',
+      email: 'max@example.com',
+      phone: '+41 71 000 00 00',
+      notes: '',
+    },
+  });
+  assert.match(href, /Fondue%20Chalet/);
   assert.doesNotMatch(href, /Fondue\+Chalet/);
 });
