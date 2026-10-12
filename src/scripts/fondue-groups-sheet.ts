@@ -169,12 +169,23 @@ function groupSizeChooseLabel(): string {
   return form?.dataset.groupSizeChoose?.trim() || 'Bitte wählen';
 }
 
+function syncGroupSizeRangeFill() {
+  if (!groupSizeInput) return;
+  const min = Number(groupSizeInput.min);
+  const max = Number(groupSizeInput.max);
+  const value = Number(groupSizeInput.value);
+  const span = max - min;
+  const pct = span <= 0 ? 0 : ((value - min) / span) * 100;
+  groupSizeInput.style.setProperty('--range-fill-pct', `${pct}%`);
+}
+
 function syncGroupSizeDisplay() {
   if (!groupSizeInput || !groupSizeDisplay) return;
   groupSizeDisplay.textContent = groupSizeSelected
     ? groupSizeInput.value
     : groupSizeChooseLabel();
   groupSizeField?.classList.toggle('fondue-groups-field--size-pending', !groupSizeSelected);
+  syncGroupSizeRangeFill();
 }
 
 function syncGroupSizeVisibility(options: { scrollIntoView?: boolean } = {}) {

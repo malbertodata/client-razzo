@@ -965,6 +965,9 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         }
       }
       .fondue-groups-field input[type='range'] {
+        --range-track-muted: rgba(255, 255, 255, 0.12);
+        --range-track-fill: rgba(255, 255, 255, 0.55);
+        --range-fill-pct: 0%;
         width: 100%;
         margin: 0.25rem 0 0;
         padding: 0;
@@ -978,17 +981,29 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
       .fondue-groups-field input[type='range']::-webkit-slider-runnable-track {
         height: 4px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
+        background: var(--range-track-muted);
+      }
+      .fondue-groups-field:not(.fondue-groups-field--size-pending) input[type='range']::-webkit-slider-runnable-track {
+        background: linear-gradient(
+          to right,
+          var(--range-track-fill) 0%,
+          var(--range-track-fill) var(--range-fill-pct),
+          var(--range-track-muted) var(--range-fill-pct),
+          var(--range-track-muted) 100%
+        );
       }
       .fondue-groups-field input[type='range']::-moz-range-track {
         height: 4px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
+        background: var(--range-track-muted);
       }
       .fondue-groups-field input[type='range']::-moz-range-progress {
         height: 4px;
         border-radius: 999px;
-        background: rgba(255, 255, 255, 0.12);
+        background: var(--range-track-muted);
+      }
+      .fondue-groups-field:not(.fondue-groups-field--size-pending) input[type='range']::-moz-range-progress {
+        background: var(--range-track-fill);
       }
       .fondue-groups-field input[type='range']::-webkit-slider-thumb {
         -webkit-appearance: none;
@@ -1025,11 +1040,11 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         transform: translateX(-50%);
         pointer-events: none;
       }
-      .fondue-groups-field--size-pending .fondue-groups-size-hint {
+      .fondue-groups-field--size-pending:not([hidden]) .fondue-groups-size-hint {
         display: block;
         animation:
-          fondue-groups-size-hint-in 0.4s ease-out 2s forwards,
-          fondue-groups-size-hint-sway 1.4s ease-in-out 2s infinite;
+          fondue-groups-size-hint-in 0.4s ease-out 1s forwards,
+          fondue-groups-size-hint-sway 1.4s ease-in-out 1s infinite;
       }
       @keyframes fondue-groups-size-hint-in {
         to {
@@ -1049,8 +1064,8 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         }
       }
       @media (prefers-reduced-motion: reduce) {
-        .fondue-groups-field--size-pending .fondue-groups-size-hint {
-          animation: fondue-groups-size-hint-in 0.4s ease-out 2s forwards;
+        .fondue-groups-field--size-pending:not([hidden]) .fondue-groups-size-hint {
+          animation: fondue-groups-size-hint-in 0.4s ease-out 1s forwards;
         }
       }
       .fondue-groups-size-ticks {
