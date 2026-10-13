@@ -58,6 +58,8 @@ export function formatGroupsEnquiryUtmChannelLabel(utm: GroupsEnquiryUtmAttribut
     firmenfeier: 'Firmenfeier (Brief)',
     vereinsfeier: 'Vereinsfeier (Brief)',
     praxisfeier: 'Praxisfeier (Brief)',
+    lehrstuhlfeier: 'Lehrstuhlfeier (Brief)',
+    institutsfeier: 'Institutsfeier (Brief)',
     'fondue chalet': 'Fondue-Chalet-Poster (QR)',
   };
   return byContent[contentKey] ?? null;

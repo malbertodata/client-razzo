@@ -10,6 +10,7 @@ import {
   shouldKeep404,
 } from './lib/fallback-redirect.mjs';
 import { dispatchGroupsEnquiryApi } from './lib/groups-enquiry-http.mjs';
+import { tryWriteShortLinkRedirect } from './lib/short-link-redirects.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dist = join(__dirname, 'dist');
@@ -30,9 +31,7 @@ createServer(async (req, res) => {
       return;
     }
 
-    if (url.pathname === '/' || url.pathname === '') {
-      res.writeHead(302, { Location: '/reservieren/' });
-      res.end();
+    if (tryWriteShortLinkRedirect(res, url.pathname, url.searchParams)) {
       return;
     }
 
