@@ -11,10 +11,11 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 | Business mailing | `https://www.razzosg.ch/firmenfeier` → `/reservieren` (+ UTMs) |
 | Associations / clubs | `https://www.razzosg.ch/vereinsfeier` → `/reservieren` (+ UTMs) |
 | Medical practices | `https://www.razzosg.ch/praxisfeier` → `/reservieren` (+ UTMs) |
+| University chairs (letter) | `https://www.razzosg.ch/lehrstuhlfeier` → `/reservieren` (+ UTMs) |
 
 Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`.
 
-English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`.
+English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`.
 
 `/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
 
@@ -49,6 +50,7 @@ Short links (same redirects as production; `npm run dev` on port **4321**):
 | Firmenfeier | http://localhost:4321/firmenfeier |
 | Vereinsfeier | http://localhost:4321/vereinsfeier |
 | Praxisfeier (Arztpraxen) | http://localhost:4321/praxisfeier |
+| Lehrstuhlfeier (Unis) | http://localhost:4321/lehrstuhlfeier |
 
 After `npm run build`, `npm run preview` serves the same paths on port **3000** (e.g. http://localhost:3000/fondue-chalet).
 

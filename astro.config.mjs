@@ -44,10 +44,12 @@ export default defineConfig({
     '/firmenfeier': `/reservieren?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=firmenfeier`,
     '/vereinsfeier': `/reservieren?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=vereinsfeier`,
     '/praxisfeier': `/reservieren?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=praxisfeier`,
+    '/lehrstuhlfeier': `/reservieren?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=lehrstuhlfeier`,
     '/en/fondue-chalet': `/en/book?utm_campaign=${campaign}&utm_source=poster&utm_medium=qr&utm_content=fondue+chalet`,
     '/en/firmenfeier': `/en/book?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=firmenfeier`,
     '/en/vereinsfeier': `/en/book?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=vereinsfeier`,
     '/en/praxisfeier': `/en/book?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=praxisfeier`,
+    '/en/lehrstuhlfeier': `/en/book?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=lehrstuhlfeier`,
     // Legacy short links (same UTMs as replacements above)
     '/chalet-aussen': `/reservieren?utm_campaign=${campaign}&utm_source=poster&utm_medium=qr&utm_content=fondue+chalet`,
     '/unternehmen': `/reservieren?utm_campaign=${campaign}&utm_source=letter&utm_medium=letter&utm_content=firmenfeier`,
