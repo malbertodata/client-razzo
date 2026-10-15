@@ -13,13 +13,13 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 | Medical practices | `https://www.razzosg.ch/praxisfeier` → `/reservieren` (+ UTMs) |
 | University chairs (letter) | `https://www.razzosg.ch/lehrstuhlfeier` → `/reservieren` (+ UTMs) |
 | University institutes (letter) | `https://www.razzosg.ch/institutsfeier` → `/reservieren` (+ UTMs) |
-| Schools / teachers (letter) | `https://www.razzosg.ch/weihnachtsfeier` → `/reservieren` (+ UTMs) |
+| Schools / teachers (letter) | `https://www.razzosg.ch/weihnachtsessen` → `/reservieren` (+ UTMs) |
 
 Per-uni tracking in print QR codes: append query params on the short link (e.g. `?u=phsg`). Production and dev merge them onto the redirect target **in addition to** the fixed UTMs (see [`lib/short-link-redirects.mjs`](../lib/short-link-redirects.mjs)).
 
-Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`.
+Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`, `/weihnachtsfeier`.
 
-English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsfeier`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`.
+English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
 
 `/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
 
@@ -56,7 +56,7 @@ Short links (same redirects as production; `npm run dev` on port **4321**):
 | Praxisfeier (Arztpraxen) | http://localhost:4321/praxisfeier |
 | Lehrstuhlfeier (Unis) | http://localhost:4321/lehrstuhlfeier |
 | Institutsfeier (Unis, QR `?u=…`) | http://localhost:4321/institutsfeier?u=phsg |
-| Weihnachtsfeier (Schulen/Lehrer) | http://localhost:4321/weihnachtsfeier |
+| Weihnachtsessen (Schulen/Lehrer) | http://localhost:4321/weihnachtsessen |
 
 After `npm run build`, `npm run preview` serves the same paths on port **3000** (e.g. http://localhost:3000/fondue-chalet).
 
