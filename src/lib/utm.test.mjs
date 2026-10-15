@@ -16,6 +16,10 @@ test('formatGroupsEnquiryUtmChannelLabel maps known utm_content values', () => {
     'Praxisfeier (Brief)',
   );
   assert.equal(
+    formatGroupsEnquiryUtmChannelLabel({ content: 'weihnachtsfeier', source: '', medium: '', campaign: '' }),
+    'Weihnachtsfeier (Brief)',
+  );
+  assert.equal(
     formatGroupsEnquiryUtmChannelLabel({ content: 'fondue chalet', source: '', medium: '', campaign: '' }),
     'Fondue-Chalet-Poster (QR)',
   );
