@@ -106,6 +106,7 @@ Zone **`razzosg.ch`** lives in the **Client Podium** Cloudflare account. Traefik
 |------|------|---------|--------|
 | `@` | **A** | `116.203.69.21` | **Proxied** (orange cloud) |
 | `www` | **A** | `116.203.69.21` | **Proxied** (orange cloud) |
+| `more` | **A** | `116.203.69.21` | **Proxied** — touchpoints (`more.razzosg.ch/touch` → **web** app, not razzosg-landings) |
 | `@` / `www` | **AAAA** | — | **Do not add** origin IPv6 until Hetzner IPv6 + firewall + Traefik are verified (see below) |
 
 Do **not** mix **proxied A** with **DNS-only AAAA** — that caused ACME/HTTPS flakiness in the past.

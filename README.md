@@ -6,7 +6,7 @@ Standalone **Fondue Chalet 2026** campaign site for Client Podium / Razzo.
 - **Config:** `src/config/campaign.json`
 - **Ops:** [docs/fondue-chalet-razzosg.md](docs/fondue-chalet-razzosg.md)
 
-The NFC hub (`nfc.razzo.sg`) still lives in the [`hospitality_websites`](../../hospitality_websites) monorepo for now.
+Touchpoints (NFC link hub) live in [`hospitality_websites`](../../hospitality_websites) **web** app — e.g. [`https://more.razzosg.ch/touch`](docs/touchpoint-more-razzosg.md) (same as `/de/nfc/touch` locally). Chalet short links on this repo stay on `www.razzosg.ch`.
 
 ## Quick start (local)
 
