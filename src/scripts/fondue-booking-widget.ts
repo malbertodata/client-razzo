@@ -1,4 +1,8 @@
-import { applyChaletBookingSlotToUrl, applyRestaurantBookingSlotToUrl } from '@/lib/aleno';
+import {
+  appendIncomingUtmParams,
+  applyChaletBookingSlotToUrl,
+  applyRestaurantBookingSlotToUrl,
+} from '@/lib/aleno';
 
 const overlay = document.getElementById('fondue-widget-overlay');
 const closeBtn = document.getElementById('fondue-widget-close');
@@ -15,13 +19,15 @@ function widgetSrcForOpen(base: string, linkId: string | null, trigger: HTMLElem
   const trimmed = base.trim();
   if (!trimmed) return '';
 
-  let withSlot = trimmed;
+  const withUtm = appendIncomingUtmParams(trimmed, new URLSearchParams(window.location.search));
+
+  let withSlot = withUtm;
   if (linkId === 'restaurant') {
-    withSlot = applyRestaurantBookingSlotToUrl(trimmed, new Date());
+    withSlot = applyRestaurantBookingSlotToUrl(withUtm, new Date());
   } else if (linkId === 'chalet') {
     const first = trigger?.getAttribute('data-chalet-season-first')?.trim() || '2026-11-03';
     const last = trigger?.getAttribute('data-chalet-season-last')?.trim() || undefined;
-    withSlot = applyChaletBookingSlotToUrl(trimmed, new Date(), first, last);
+    withSlot = applyChaletBookingSlotToUrl(withUtm, new Date(), first, last);
   }
 
   return freshWidgetSrc(withSlot);

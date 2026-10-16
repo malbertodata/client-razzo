@@ -515,18 +515,28 @@ export function chaletStartDateParam(firstAvailableDate: string, now: Date = new
   return null;
 }
 
-/** Append Aleno `locale` and `utm_*` from the campaign page onto a reservation link. */
-export function appendReservationLinkParams(reservationUrl: string, ctx: ReservationLinkContext): string {
+/**
+ * Copy `utm_*` from the campaign page onto an Aleno widget URL.
+ * Page values win. The static build cannot see the visitor query, so the widget
+ * opener calls this again with `window.location.search`.
+ */
+export function appendIncomingUtmParams(reservationUrl: string, incoming: URLSearchParams): string {
   const url = new URL(reservationUrl.trim());
 
-  url.searchParams.set('locale', alenoWidgetLocale(ctx.locale));
-
-  for (const [key, value] of ctx.incoming.entries()) {
+  for (const [key, value] of incoming.entries()) {
     if (!key.startsWith('utm_')) continue;
-    if (url.searchParams.has(key)) continue;
-    url.searchParams.set(key, value.trim().toLowerCase());
+    const normalized = value.trim().toLowerCase();
+    if (!normalized) continue;
+    url.searchParams.set(key, normalized);
   }
 
+  return url.toString();
+}
+
+/** Append Aleno `locale` and `utm_*` from the campaign page onto a reservation link. */
+export function appendReservationLinkParams(reservationUrl: string, ctx: ReservationLinkContext): string {
+  const url = new URL(appendIncomingUtmParams(reservationUrl, ctx.incoming));
+  url.searchParams.set('locale', alenoWidgetLocale(ctx.locale));
   return url.toString();
 }
 

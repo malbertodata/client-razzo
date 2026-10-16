@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  appendIncomingUtmParams,
   appendReservationLinkParams,
   chaletStartDateParam,
   resolveChaletBookingUrl,
@@ -47,6 +48,31 @@ test('appendReservationLinkParams uses site locale for Aleno even if query has l
   assert.equal(parsed.searchParams.get('utm_source'), 'poster');
   assert.equal(parsed.searchParams.get('shifts'), 'Chalet razzo');
   assert.equal(parsed.searchParams.has('restaurant'), false);
+});
+
+test('appendIncomingUtmParams copies the fondue-chalet page query onto the widget url', () => {
+  const incoming = new URLSearchParams(
+    'utm_campaign=fondue+chalet+2026&utm_source=poster&utm_medium=qr&utm_content=fondue+chalet',
+  );
+  const parsed = new URL(appendIncomingUtmParams(chaletBase, incoming));
+  assert.equal(parsed.searchParams.get('utm_campaign'), 'fondue chalet 2026');
+  assert.equal(parsed.searchParams.get('utm_source'), 'poster');
+  assert.equal(parsed.searchParams.get('utm_medium'), 'qr');
+  assert.equal(parsed.searchParams.get('utm_content'), 'fondue chalet');
+  assert.equal(parsed.searchParams.get('k'), 'test');
+  assert.equal(parsed.searchParams.get('shifts'), 'Chalet razzo');
+});
+
+test('appendIncomingUtmParams lets the page query replace utm values already on the widget url', () => {
+  const parsed = new URL(
+    appendIncomingUtmParams(`${chaletBase}&utm_source=baked`, new URLSearchParams('utm_source=Poster')),
+  );
+  assert.equal(parsed.searchParams.get('utm_source'), 'poster');
+});
+
+test('appendIncomingUtmParams skips blank utm values', () => {
+  const parsed = new URL(appendIncomingUtmParams(chaletBase, new URLSearchParams('utm_medium=')));
+  assert.equal(parsed.searchParams.get('utm_medium'), null);
 });
 
 test('resolveRestaurantWidgetUrl sets closeButton=off and prefills startDate and timeUTC', () => {
