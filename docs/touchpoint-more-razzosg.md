@@ -41,7 +41,7 @@ https://more.razzosg.ch/touch
 
 ## Analytics (Umami)
 
-When `umamiWebsiteId` and `analyticsProxyPath` are set on the site, the touch page loads the same deferred stats script as the fondue chalet flow. Custom events:
+When the site has an `analyticsProxyPath` and a Umami website id (from the site row or `PUBLIC_UMAMI_WEBSITE_ID` / `UMAMI_WEBSITE_ID` on the **web** app — same UUID as the fondue landings app), the touch page loads the deferred stats script. Events go to the same Umami website as chalet (`fondue_click` vs `nfc_*` are different event names). Custom events:
 
 | Event | When | Payload |
 |-------|------|---------|
