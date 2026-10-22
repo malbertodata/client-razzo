@@ -8,7 +8,7 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 |----------|------|
 | Booking hub (default) | `/buchen` · `/en/book` |
 | Chalet poster (QR) | `https://www.razzosg.ch/fondue-chalet` → `/reservieren` (+ UTMs) |
-| Instagram link in bio | `https://www.razzosg.ch/fondue-stgallen` → `/reservieren?chalet` (+ Instagram UTMs) |
+| Instagram link in bio | `https://www.razzosg.ch/fondue-stgallen` → `/reservieren` (+ Instagram UTMs) |
 | Business mailing | `https://www.razzosg.ch/firmenfeier` → `/reservieren` (+ UTMs) |
 | Associations / clubs | `https://www.razzosg.ch/vereinsfeier` → `/reservieren` (+ UTMs) |
 | Medical practices | `https://www.razzosg.ch/praxisfeier` → `/reservieren` (+ UTMs) |
