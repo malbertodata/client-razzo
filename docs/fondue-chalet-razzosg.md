@@ -8,6 +8,7 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 |----------|------|
 | Booking hub (default) | `/buchen` · `/en/book` |
 | Chalet poster (QR) | `https://www.razzosg.ch/fondue-chalet` → `/reservieren` (+ UTMs) |
+| Instagram link in bio | `https://www.razzosg.ch/fondue-stgallen` → `/reservieren?chalet` (+ Instagram UTMs) |
 | Business mailing | `https://www.razzosg.ch/firmenfeier` → `/reservieren` (+ UTMs) |
 | Associations / clubs | `https://www.razzosg.ch/vereinsfeier` → `/reservieren` (+ UTMs) |
 | Medical practices | `https://www.razzosg.ch/praxisfeier` → `/reservieren` (+ UTMs) |
@@ -19,7 +20,7 @@ Per-uni tracking in print QR codes: append query params on the short link (e.g. 
 
 Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`, `/weihnachtsfeier`.
 
-English short links: `/en/fondue-chalet`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
+English short links: `/en/fondue-chalet`, `/en/fondue-stgallen`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
 
 `/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
 
@@ -51,6 +52,7 @@ Short links (same redirects as production; `npm run dev` on port **4321**):
 | Channel | Local URL |
 |---------|-----------|
 | Chalet QR | http://localhost:4321/fondue-chalet |
+| Instagram link in bio | http://localhost:4321/fondue-stgallen |
 | Firmenfeier | http://localhost:4321/firmenfeier |
 | Vereinsfeier | http://localhost:4321/vereinsfeier |
 | Praxisfeier (Arztpraxen) | http://localhost:4321/praxisfeier |

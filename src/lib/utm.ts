@@ -62,6 +62,7 @@ export function formatGroupsEnquiryUtmChannelLabel(utm: GroupsEnquiryUtmAttribut
     institutsfeier: 'Institutsfeier (Brief)',
     weihnachtsessen: 'Weihnachtsessen (Brief)',
     'fondue chalet': 'Fondue-Chalet-Poster (QR)',
+    instagram: 'Instagram (Link in Bio)',
   };
   return byContent[contentKey] ?? null;
 }
