@@ -117,9 +117,25 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         --nfc-contact-icon-size: 1.25rem;
         --fondue-groups-sheet-max-w: 24rem;
         position: relative;
+        isolation: isolate;
         height: 100dvh;
         max-height: 100dvh;
         overflow: hidden;
+      }
+      .nfc-page::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background:
+          linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.78) 0%,
+            rgba(0, 0, 0, 0.62) 46%,
+            rgba(0, 0, 0, 0.82) 100%
+          ),
+          url('/brand/fondue-chalet.jpg') center 42% / cover no-repeat;
+        pointer-events: none;
       }
       @media (min-width: 1024px) {
         .nfc-page {
@@ -446,6 +462,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         min-height: 3.25rem;
         padding: 1rem 1.25rem;
         border: 1.5px solid rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.5);
         transition: background 0.15s ease, border-color 0.15s ease;
       }
       .fondue-option-hours {
@@ -501,12 +518,13 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         min-height: 3.25rem;
         color: oklch(72% 0.006 264.542);
         border-color: rgba(255, 255, 255, 0.38);
+        background: rgba(0, 0, 0, 0.5);
       }
       .fondue-groups .nfc-link:hover,
       .fondue-groups .nfc-link:focus-visible {
         color: oklch(82% 0.006 264.542);
         border-color: rgba(255, 255, 255, 0.55);
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.35);
       }
       .fondue-groups-enquiry .nfc-link {
         padding-inline: 0.625rem;
@@ -1466,7 +1484,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
       }
       .nfc-link.nfc-link--booking:hover .nfc-link-main,
       .nfc-link.nfc-link--booking:focus-visible .nfc-link-main {
-        background: rgba(255, 255, 255, 0.08);
+        background: rgba(0, 0, 0, 0.35);
         border-color: #fff;
       }
       .fondue-option-details[open] .fondue-option-hours {
