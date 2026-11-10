@@ -46,7 +46,9 @@ export type CampaignConfig = {
   chaletLastAvailableDate?: string;
   groupsEnquiryEmail?: string;
   chaletMenuUrl?: string;
-  restaurantLunchMenuUrl?: string;
+  chaletLunchMenuUrl?: string;
+  chaletMenuImage?: string;
+  chaletLunchMenuImage?: string;
   pages: Record<string, FonduePageConfig>;
   bookingPath: string;
   bookingPathEn?: string;

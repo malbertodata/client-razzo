@@ -77,9 +77,11 @@
     "restaurantHoursLine2": "Thu – Sat | 9 – 23",
     "restaurantHoursLine3": "Sun closed",
     "restaurantMenuNote": "À la carte — no fondue in the restaurant",
-    "menuLinksNav": "Menus",
-    "chaletMenuLink": "Menu",
-    "restaurantLunchMenuLink": "Lunch menu"
+    "menuLinksNav": "Lunch at the Chalet",
+    "chaletMenuLink": "Fondue menu",
+    "chaletLunchMenuLink": "Lunch menu",
+    "lunchCaption": "At our Chalet, you can choose between our Fondue menu and our lunch menu now.",
+    "lunchReserveLabel": "Reserve"
   },
   "legal": {
     "privacyUrl": "https://www.razzo.sg/en/privacy/",
@@ -93,8 +95,8 @@
       "intro": ""
     },
     "fondue-lunch": {
-      "title": "Fondue Lunch",
-      "headline": "Book now",
+      "title": "Lunch at the Chalet",
+      "headline": "Lunch at the Chalet",
       "intro": ""
     }
   }

@@ -82,7 +82,9 @@ export type UiCopy = {
   restaurantMenuNote: string;
   menuLinksNav: string;
   chaletMenuLink: string;
-  restaurantLunchMenuLink: string;
+  chaletLunchMenuLink: string;
+  lunchCaption: string;
+  lunchReserveLabel: string;
 };
 
 export type LegalUrls = {
@@ -172,9 +174,11 @@ const uiDe: UiCopy = {
   restaurantHoursLine2: 'Do – Sa | 9 – 23 Uhr',
   restaurantHoursLine3: 'So Geschlossen',
   restaurantMenuNote: 'À la carte — kein Fondue im Restaurant',
-  menuLinksNav: 'Speisekarten',
-  chaletMenuLink: 'Speisekarte',
-  restaurantLunchMenuLink: 'Mittagsmenü',
+  menuLinksNav: 'Mittag im Chalet',
+  chaletMenuLink: 'Fondue Menu',
+  chaletLunchMenuLink: 'Mittagskarte Menu',
+  lunchCaption: 'Neben unserer Fondue Karte bieten wir auch unsere Mittagskarte im Chalet an.',
+  lunchReserveLabel: 'Reservieren',
 };
 
 const legalDe: LegalUrls = {

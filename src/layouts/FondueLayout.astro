@@ -66,8 +66,11 @@ const restaurantWidgetUrl = resolveRestaurantWidgetUrl(config.restaurantWidgetUr
 const groupsEmail = config.groupsEnquiryEmail?.trim() || 'ciao@razzosg.ch';
 const chaletMenuUrl =
   config.chaletMenuUrl?.trim() || 'https://www.razzo.sg/menus/fonduechalet/';
-const restaurantLunchMenuUrl =
-  config.restaurantLunchMenuUrl?.trim() || 'https://www.razzo.sg/tagesmenu';
+const chaletLunchMenuUrl =
+  config.chaletLunchMenuUrl?.trim() || 'https://www.razzo.sg/menus/mittagskarte/';
+const chaletMenuImage = config.chaletMenuImage?.trim() || '/brand/fondue-menu.webp';
+const chaletLunchMenuImage =
+  config.chaletLunchMenuImage?.trim() || '/brand/mittagskarte.avif';
 const contactEmailHref = `mailto:${groupsEmail}`;
 const groupsChaletDateMin = chaletSeasonFirst;
 const groupsChaletDateMax = '2027-01-30';
@@ -382,6 +385,12 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
       }
       .fondue-booking-headline--single-line {
         min-height: 0;
+        white-space: nowrap;
+        font-size: clamp(1.0625rem, 4.1vw + 0.55rem, 1.75rem);
+        letter-spacing: 0.02em;
+      }
+      .fondue-booking-headline--single-line .fondue-booking-headline-line {
+        white-space: nowrap;
       }
       .fondue-main-stack:has(.fondue-booking-headline--single-line) {
         gap: var(--fondue-stack-gap);
@@ -534,43 +543,63 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         width: 100%;
         flex-shrink: 0;
       }
-      .fondue-menu-block {
-        display: flex;
-        flex-direction: column;
-        gap: var(--fondue-stack-gap);
+      .fondue-menu-tiles {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
         width: min(100%, 22rem);
         max-width: 100%;
       }
-      .fondue-menu-links {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        min-height: 1.5rem;
-        padding: 0.125rem 0.25rem;
-        color: oklch(92% 0.006 264.542);
+      .fondue-menu-tile {
+        position: relative;
+        display: block;
+        overflow: hidden;
+        aspect-ratio: 1;
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
+        background: rgba(0, 0, 0, 0.65);
+        color: inherit;
+        text-decoration: none;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .fondue-menu-tile:hover,
+      .fondue-menu-tile:focus-visible {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: #fff;
+        outline: none;
+      }
+      .fondue-menu-tile img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .fondue-menu-tile-label {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        padding: 1.75rem 0.5rem 0.65rem;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.78));
+        text-align: center;
         font-size: 0.8125rem;
         line-height: 1.35;
         letter-spacing: 0.02em;
+      }
+      .fondue-lunch-caption {
+        margin: 0;
+        padding: 0.125rem 0.25rem;
         text-align: center;
+        font-size: 0.8125rem;
+        line-height: 1.45;
+        letter-spacing: 0.02em;
+        color: oklch(92% 0.006 264.542);
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
-      }
-      .fondue-menu-links a {
-        color: inherit;
-        text-decoration: underline;
-        text-underline-offset: 0.2em;
-        transition: color 0.15s ease;
-      }
-      .fondue-menu-links a:hover,
-      .fondue-menu-links a:focus-visible {
-        color: #fff;
-        outline: none;
-      }
-      .fondue-menu-links-separator {
-        color: oklch(72% 0.006 264.542);
+        width: min(100%, 22rem);
+        max-width: 100%;
       }
       @media (min-width: 1024px) {
-        .fondue-menu-links {
+        .fondue-menu-tile-label,
+        .fondue-lunch-caption {
           font-size: 0.875rem;
         }
       }
@@ -1886,7 +1915,11 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
           <div class="fondue-main-stack">
             <div class="fondue-copy">
               {
-                isBooking ? (
+                isLunchBooking ? (
+                  <h1 class="fondue-booking-headline fondue-booking-headline--single-line">
+                    <span class="fondue-booking-headline-line">{page.headline}</span>
+                  </h1>
+                ) : isBooking ? (
                   <h1
                     class:list={[
                       'fondue-booking-headline',
@@ -1914,7 +1947,68 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
               {page.intro.trim() ? <p>{page.intro}</p> : null}
             </div>
             {
-              isBooking ? (
+              isLunchBooking ? (
+                <div class="fondue-actions">
+                  <nav class="fondue-menu-tiles" aria-label={ui.menuLinksNav}>
+                    <a
+                      class="fondue-menu-tile"
+                      href={chaletMenuUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-fondue-link="chalet_menu"
+                    >
+                      <img src={chaletMenuImage} alt="" width="1024" height="819" />
+                      <span class="fondue-menu-tile-label">{ui.chaletMenuLink}</span>
+                    </a>
+                    <a
+                      class="fondue-menu-tile"
+                      href={chaletLunchMenuUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-fondue-link="mittagskarte"
+                    >
+                      <img src={chaletLunchMenuImage} alt="" width="480" height="884" />
+                      <span class="fondue-menu-tile-label">{ui.chaletLunchMenuLink}</span>
+                    </a>
+                  </nav>
+                  <p class="fondue-lunch-caption">{ui.lunchCaption}</p>
+                  <nav class="nfc-links nfc-links--aligned" aria-label={ui.reserveNav}>
+                    <button
+                      type="button"
+                      class="nfc-link nfc-link--booking"
+                      data-fondue-link="restaurant"
+                      data-fondue-show-widget
+                      data-widget-src={restaurantWidgetUrl}
+                    >
+                      <span class="nfc-link-main">
+                        <span class="nfc-link-icon">
+                          <FondueLinkIcon id="restaurant" />
+                        </span>
+                        <span class="nfc-link-label">{ui.lunchReserveLabel}</span>
+                      </span>
+                    </button>
+                  </nav>
+                  <nav class="fondue-groups" aria-label={ui.bookingGroupsEnquiryNav}>
+                    <hr class="fondue-divider" />
+                    <div class="fondue-booking-option fondue-groups-enquiry">
+                      <button
+                        type="button"
+                        class="nfc-link"
+                        data-groups-sheet-open
+                        aria-describedby="fondue-groups-enquiry-note"
+                      >
+                        <span class="nfc-link-icon">
+                          <FondueLinkIcon id="groups" />
+                        </span>
+                        <span class="nfc-link-label">{ui.bookingGroupsEnquiryButtonLabel}</span>
+                      </button>
+                      <p class="fondue-groups-enquiry-note" id="fondue-groups-enquiry-note">
+                        {ui.bookingGroupsEnquiryButtonHint}
+                      </p>
+                    </div>
+                  </nav>
+                </div>
+              ) : isBooking ? (
                 <div class="fondue-actions">
                 <nav class="nfc-links nfc-links--aligned" aria-label={ui.bookingTypeNav}>
                   <div class="fondue-booking-option">
@@ -1991,35 +2085,8 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                     </details>
                   </div>
                 </nav>
-                {
-                  isLunchBooking ? (
-                    <div class="fondue-menu-block">
-                      <hr class="fondue-divider" />
-                      <nav class="fondue-menu-links" aria-label={ui.menuLinksNav}>
-                        <a
-                          href={chaletMenuUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          data-fondue-link="chalet_menu"
-                        >
-                          {ui.chaletMenuLink}
-                        </a>
-                        <span class="fondue-menu-links-separator" aria-hidden="true">/</span>
-                        <a
-                          href={restaurantLunchMenuUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          data-fondue-link="lunch_menu"
-                        >
-                          {ui.restaurantLunchMenuLink}
-                        </a>
-                      </nav>
-                      <hr class="fondue-divider" />
-                    </div>
-                  ) : null
-                }
                 <nav class="fondue-groups" aria-label={ui.bookingGroupsEnquiryNav}>
-                  {!isLunchBooking ? <hr class="fondue-divider" /> : null}
+                  <hr class="fondue-divider" />
                   <div class="fondue-booking-option fondue-groups-enquiry">
                     <button
                       type="button"

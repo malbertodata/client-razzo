@@ -23,7 +23,7 @@ Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`, `/
 
 English campaign page: `/en/fondue-lunch`. English short links: `/en/fondue-chalet`, `/en/fondue-stgallen`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
 
-`/fondue-lunch` is a real static page, not a redirect to `/reservieren`. On the first request the server adds `utm_campaign=fondue+chalet+2026`, `utm_source=poster`, `utm_medium=qr`, and `utm_content=fondue+lunch`; those values are passed into both Aleno widgets and group enquiries. There is intentionally no `/fondue-luch` alias.
+`/fondue-lunch` is a real static page, not a redirect to `/reservieren`. It promotes lunch at the Chalet with two menu tiles (Fondue and Mittagskarte) and a single **Reservieren** button that opens the restaurant Aleno widget (all options). On the first request the server adds `utm_campaign=fondue+chalet+2026`, `utm_source=poster`, `utm_medium=qr`, and `utm_content=fondue+lunch`; those values are passed into the widget and group enquiries. There is intentionally no `/fondue-luch` alias.
 
 `/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
 
