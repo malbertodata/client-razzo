@@ -175,8 +175,8 @@ const uiDe: UiCopy = {
   restaurantHoursLine3: 'So Geschlossen',
   restaurantMenuNote: 'À la carte — kein Fondue im Restaurant',
   menuLinksNav: 'Mittag im Chalet',
-  chaletMenuLink: 'Fondue Menu',
-  chaletLunchMenuLink: 'Mittagskarte Menu',
+  chaletMenuLink: 'Fonduekarte',
+  chaletLunchMenuLink: 'Mittagskarte',
   lunchCaption: 'Neben unserer Fondue Karte bieten wir auch unsere Mittagskarte im Chalet an.',
   lunchReserveLabel: 'Reservieren',
 };
