@@ -381,7 +381,10 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         min-height: calc(3 * 1.3em);
       }
       .fondue-booking-headline--single-line {
-        min-height: calc(2 * 1.3em);
+        min-height: 0;
+      }
+      .fondue-main-stack:has(.fondue-booking-headline--single-line) {
+        gap: var(--fondue-stack-gap);
       }
       .fondue-booking-headline-line {
         display: block;
@@ -1890,9 +1893,13 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                       !ui.bookingHeadlineLine2 && 'fondue-booking-headline--single-line',
                     ]}
                   >
-                    <span
-                      class="fondue-booking-headline-line fondue-booking-headline-line--spacer"
-                      aria-hidden="true"></span>
+                    {
+                      ui.bookingHeadlineLine2 ? (
+                        <span
+                          class="fondue-booking-headline-line fondue-booking-headline-line--spacer"
+                          aria-hidden="true"></span>
+                      ) : null
+                    }
                     <span class="fondue-booking-headline-line">{ui.bookingHeadlineLine1}</span>
                     {
                       ui.bookingHeadlineLine2 ? (
@@ -1927,7 +1934,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                         <span class="nfc-link-label">{ui.bookChalet}</span>
                       </span>
                     </button>
-                    <details class="fondue-option-details">
+                    <details class="fondue-option-details" data-fondue-details="chalet">
                       <summary>
                         <span>{ui.bookingDetailsToggle}</span>
                         <svg
@@ -1963,7 +1970,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                         <span class="nfc-link-label">{ui.bookRestaurant}</span>
                       </span>
                     </button>
-                    <details class="fondue-option-details">
+                    <details class="fondue-option-details" data-fondue-details="restaurant">
                       <summary>
                         <span>{ui.bookingDetailsToggle}</span>
                         <svg
@@ -2420,6 +2427,15 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
           const id = el.getAttribute('data-fondue-link');
           if (!id) return;
           safeTrack('fondue_click', { link: id });
+        });
+      });
+
+      document.querySelectorAll('details[data-fondue-details]').forEach((el) => {
+        el.addEventListener('toggle', () => {
+          if (!(el instanceof HTMLDetailsElement) || !el.open) return;
+          const id = el.getAttribute('data-fondue-details');
+          if (!id) return;
+          safeTrack('fondue_click', { link: `${id}_details` });
         });
       });
 
