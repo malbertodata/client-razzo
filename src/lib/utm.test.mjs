@@ -24,6 +24,10 @@ test('formatGroupsEnquiryUtmChannelLabel maps known utm_content values', () => {
     'Fondue-Chalet-Poster (QR)',
   );
   assert.equal(
+    formatGroupsEnquiryUtmChannelLabel({ content: 'fondue lunch', source: '', medium: '', campaign: '' }),
+    'Fondue-Lunch-Poster (QR)',
+  );
+  assert.equal(
     formatGroupsEnquiryUtmChannelLabel({ content: 'instagram', source: '', medium: '', campaign: '' }),
     'Instagram (Link in Bio)',
   );

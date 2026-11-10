@@ -16,6 +16,7 @@ export type FondueLandingPage = {
 
 export type FondueBookingPage = {
   kind: 'booking';
+  bookingVariant?: 'lunch';
   title: string;
   headline: string;
   intro: string;
@@ -44,6 +45,8 @@ export type CampaignConfig = {
   /** ISO date (yyyy-mm-dd): last day of chalet season (default: Jan 31 after season year). */
   chaletLastAvailableDate?: string;
   groupsEnquiryEmail?: string;
+  chaletMenuUrl?: string;
+  restaurantLunchMenuUrl?: string;
   pages: Record<string, FonduePageConfig>;
   bookingPath: string;
   bookingPathEn?: string;

@@ -2,7 +2,11 @@ import './lib/load-env.mjs';
 import { defineConfig } from 'astro/config';
 import { tryHandleAnalyticsProxy } from './lib/analytics-proxy.mjs';
 import { dispatchGroupsEnquiryApi } from './lib/groups-enquiry-http.mjs';
-import { astroRedirectsConfig, tryWriteShortLinkRedirect } from './lib/short-link-redirects.mjs';
+import {
+  astroRedirectsConfig,
+  tryWriteLunchLandingRedirect,
+  tryWriteShortLinkRedirect,
+} from './lib/short-link-redirects.mjs';
 
 export default defineConfig({
   site: 'https://www.razzosg.ch',
@@ -40,6 +44,7 @@ export default defineConfig({
             try {
               const url = new URL(req.url || '/', 'http://127.0.0.1');
               if (tryWriteShortLinkRedirect(res, url.pathname, url.searchParams)) return;
+              if (tryWriteLunchLandingRedirect(res, url.pathname, url.searchParams)) return;
               next();
             } catch (err) {
               next(err);

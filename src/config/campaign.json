@@ -16,6 +16,8 @@
   "chaletFirstAvailableDate": "2026-11-03",
   "chaletLastAvailableDate": "2027-01-31",
   "groupsEnquiryEmail": "ciao@razzosg.ch",
+  "chaletMenuUrl": "https://www.razzo.sg/menus/fonduechalet/",
+  "restaurantLunchMenuUrl": "https://www.razzo.sg/tagesmenu",
   "pages": {
     "buchen": {
       "kind": "booking",
@@ -23,6 +25,18 @@
       "headline": "Jetzt reservieren",
       "intro": "",
       "utm": {}
+    },
+    "fondue-lunch": {
+      "kind": "booking",
+      "bookingVariant": "lunch",
+      "title": "Fondue Lunch",
+      "headline": "Jetzt reservieren",
+      "intro": "",
+      "utm": {
+        "source": "poster",
+        "medium": "qr",
+        "content": "fondue lunch"
+      }
     }
   },
   "bookingPath": "reservieren",

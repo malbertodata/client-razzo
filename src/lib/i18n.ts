@@ -80,6 +80,9 @@ export type UiCopy = {
   restaurantHoursLine2: string;
   restaurantHoursLine3: string;
   restaurantMenuNote: string;
+  menuLinksNav: string;
+  chaletMenuLink: string;
+  restaurantLunchMenuLink: string;
 };
 
 export type LegalUrls = {
@@ -93,8 +96,8 @@ const uiDe: UiCopy = {
   reserveNav: 'Reservieren',
   bookingTypeNav: 'Buchungsart',
   bookNow: 'Jetzt reservieren',
-  bookingHeadlineLine1: 'Jetzt',
-  bookingHeadlineLine2: 'reservieren',
+  bookingHeadlineLine1: 'Jetzt reservieren',
+  bookingHeadlineLine2: '',
   bookChalet: 'Fondue Chalet',
   bookRestaurant: 'Restaurant',
   back: 'Zurück',
@@ -169,6 +172,9 @@ const uiDe: UiCopy = {
   restaurantHoursLine2: 'Do – Sa | 9 – 23 Uhr',
   restaurantHoursLine3: 'So Geschlossen',
   restaurantMenuNote: 'À la carte — kein Fondue im Restaurant',
+  menuLinksNav: 'Speisekarten',
+  chaletMenuLink: 'Speisekarte',
+  restaurantLunchMenuLink: 'Mittagsmenü',
 };
 
 const legalDe: LegalUrls = {

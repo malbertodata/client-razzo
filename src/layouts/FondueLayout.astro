@@ -18,6 +18,7 @@ import {
   GROUPS_ENQUIRY_DEFAULT_PHONE_CODE,
   GROUPS_ENQUIRY_PHONE_COUNTRIES,
 } from '@/lib/groups-enquiry-validation';
+import { buildFondueUtmSearchParams } from '@/lib/utm';
 
 interface Props {
   config: CampaignConfig;
@@ -43,8 +44,16 @@ const alternateLocaleHref = switchLocalePath({
 });
 
 const isBooking = page.kind === 'booking';
+const isLunchBooking = isBooking && page.bookingVariant === 'lunch';
 const incomingSearch = Astro.url.searchParams;
-const reservationCtx = { incoming: incomingSearch, locale };
+const reservationSearch = isLunchBooking
+  ? buildFondueUtmSearchParams({
+      config,
+      pageUtm: page.utm,
+      incomingSearch,
+    })
+  : incomingSearch;
+const reservationCtx = { incoming: reservationSearch, locale };
 const chaletSeasonFirst = config.chaletFirstAvailableDate?.trim() || '2026-11-03';
 const chaletSeasonLast = config.chaletLastAvailableDate?.trim();
 const chaletWidgetUrl = resolveChaletEmbeddedWidgetUrl(
@@ -55,6 +64,10 @@ const chaletWidgetUrl = resolveChaletEmbeddedWidgetUrl(
 );
 const restaurantWidgetUrl = resolveRestaurantWidgetUrl(config.restaurantWidgetUrl, reservationCtx);
 const groupsEmail = config.groupsEnquiryEmail?.trim() || 'ciao@razzosg.ch';
+const chaletMenuUrl =
+  config.chaletMenuUrl?.trim() || 'https://www.razzo.sg/menus/fonduechalet/';
+const restaurantLunchMenuUrl =
+  config.restaurantLunchMenuUrl?.trim() || 'https://www.razzo.sg/tagesmenu';
 const contactEmailHref = `mailto:${groupsEmail}`;
 const groupsChaletDateMin = chaletSeasonFirst;
 const groupsChaletDateMax = '2027-01-30';
@@ -367,6 +380,9 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         align-items: center;
         min-height: calc(3 * 1.3em);
       }
+      .fondue-booking-headline--single-line {
+        min-height: calc(2 * 1.3em);
+      }
       .fondue-booking-headline-line {
         display: block;
       }
@@ -514,6 +530,46 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
         border-top: 1.5px solid rgba(255, 255, 255, 0.5);
         width: 100%;
         flex-shrink: 0;
+      }
+      .fondue-menu-block {
+        display: flex;
+        flex-direction: column;
+        gap: var(--fondue-stack-gap);
+        width: min(100%, 22rem);
+        max-width: 100%;
+      }
+      .fondue-menu-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        min-height: 1.5rem;
+        padding: 0.125rem 0.25rem;
+        color: oklch(92% 0.006 264.542);
+        font-size: 0.8125rem;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        text-align: center;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+      }
+      .fondue-menu-links a {
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 0.2em;
+        transition: color 0.15s ease;
+      }
+      .fondue-menu-links a:hover,
+      .fondue-menu-links a:focus-visible {
+        color: #fff;
+        outline: none;
+      }
+      .fondue-menu-links-separator {
+        color: oklch(72% 0.006 264.542);
+      }
+      @media (min-width: 1024px) {
+        .fondue-menu-links {
+          font-size: 0.875rem;
+        }
       }
       .fondue-groups .nfc-link {
         justify-content: center;
@@ -1828,7 +1884,12 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
             <div class="fondue-copy">
               {
                 isBooking ? (
-                  <h1 class="fondue-booking-headline">
+                  <h1
+                    class:list={[
+                      'fondue-booking-headline',
+                      !ui.bookingHeadlineLine2 && 'fondue-booking-headline--single-line',
+                    ]}
+                  >
                     <span
                       class="fondue-booking-headline-line fondue-booking-headline-line--spacer"
                       aria-hidden="true"></span>
@@ -1836,11 +1897,7 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                     {
                       ui.bookingHeadlineLine2 ? (
                         <span class="fondue-booking-headline-line">{ui.bookingHeadlineLine2}</span>
-                      ) : (
-                        <span
-                          class="fondue-booking-headline-line fondue-booking-headline-line--spacer"
-                          aria-hidden="true"></span>
-                      )
+                      ) : null
                     }
                   </h1>
                 ) : (
@@ -1927,8 +1984,35 @@ const groupsSizeDefault = Math.round((groupsSizeMin + groupsSizeMax) / 2);
                     </details>
                   </div>
                 </nav>
+                {
+                  isLunchBooking ? (
+                    <div class="fondue-menu-block">
+                      <hr class="fondue-divider" />
+                      <nav class="fondue-menu-links" aria-label={ui.menuLinksNav}>
+                        <a
+                          href={chaletMenuUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-fondue-link="chalet_menu"
+                        >
+                          {ui.chaletMenuLink}
+                        </a>
+                        <span class="fondue-menu-links-separator" aria-hidden="true">/</span>
+                        <a
+                          href={restaurantLunchMenuUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          data-fondue-link="lunch_menu"
+                        >
+                          {ui.restaurantLunchMenuLink}
+                        </a>
+                      </nav>
+                      <hr class="fondue-divider" />
+                    </div>
+                  ) : null
+                }
                 <nav class="fondue-groups" aria-label={ui.bookingGroupsEnquiryNav}>
-                  <hr class="fondue-divider" />
+                  {!isLunchBooking ? <hr class="fondue-divider" /> : null}
                   <div class="fondue-booking-option fondue-groups-enquiry">
                     <button
                       type="button"

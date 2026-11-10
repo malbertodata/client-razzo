@@ -76,7 +76,10 @@
     "restaurantHoursLine1": "Mon – Wed | 9 – 22",
     "restaurantHoursLine2": "Thu – Sat | 9 – 23",
     "restaurantHoursLine3": "Sun closed",
-    "restaurantMenuNote": "À la carte — no fondue in the restaurant"
+    "restaurantMenuNote": "À la carte — no fondue in the restaurant",
+    "menuLinksNav": "Menus",
+    "chaletMenuLink": "Menu",
+    "restaurantLunchMenuLink": "Lunch menu"
   },
   "legal": {
     "privacyUrl": "https://www.razzo.sg/en/privacy/",
@@ -86,6 +89,11 @@
   "pages": {
     "buchen": {
       "title": "Book",
+      "headline": "Book now",
+      "intro": ""
+    },
+    "fondue-lunch": {
+      "title": "Fondue Lunch",
       "headline": "Book now",
       "intro": ""
     }

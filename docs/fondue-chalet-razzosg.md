@@ -8,6 +8,7 @@ Standalone repo for temporary campaign landings until the full `razzosg.ch` site
 |----------|------|
 | Booking hub (default) | `/buchen` · `/en/book` |
 | Chalet poster (QR) | `https://www.razzosg.ch/fondue-chalet` → `/reservieren` (+ UTMs) |
+| Lunch poster (QR) | `https://www.razzosg.ch/fondue-lunch` → `/fondue-lunch/` (+ UTMs, canonical page) |
 | Instagram link in bio | `https://www.razzosg.ch/fondue-stgallen` → `/reservieren` (+ Instagram UTMs) |
 | Business mailing | `https://www.razzosg.ch/firmenfeier` → `/reservieren` (+ UTMs) |
 | Associations / clubs | `https://www.razzosg.ch/vereinsfeier` → `/reservieren` (+ UTMs) |
@@ -20,7 +21,9 @@ Per-uni tracking in print QR codes: append query params on the short link (e.g. 
 
 Legacy aliases (same tracking): `/chalet-aussen`, `/unternehmen`, `/vereine`, `/weihnachtsfeier`.
 
-English short links: `/en/fondue-chalet`, `/en/fondue-stgallen`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
+English campaign page: `/en/fondue-lunch`. English short links: `/en/fondue-chalet`, `/en/fondue-stgallen`, `/en/firmenfeier`, `/en/vereinsfeier`, `/en/praxisfeier`, `/en/lehrstuhlfeier`, `/en/institutsfeier`, `/en/weihnachtsessen`, plus `/en/chalet-aussen`, `/en/unternehmen`, `/en/vereine`, `/en/weihnachtsfeier`.
+
+`/fondue-lunch` is a real static page, not a redirect to `/reservieren`. On the first request the server adds `utm_campaign=fondue+chalet+2026`, `utm_source=poster`, `utm_medium=qr`, and `utm_content=fondue+lunch`; those values are passed into both Aleno widgets and group enquiries. There is intentionally no `/fondue-luch` alias.
 
 `/` → `/reservieren` · `/buchen` → `/reservieren` · `/en` → `/en/book`
 
@@ -52,6 +55,7 @@ Short links (same redirects as production; `npm run dev` on port **4321**):
 | Channel | Local URL |
 |---------|-----------|
 | Chalet QR | http://localhost:4321/fondue-chalet |
+| Lunch poster | http://localhost:4321/fondue-lunch |
 | Instagram link in bio | http://localhost:4321/fondue-stgallen |
 | Firmenfeier | http://localhost:4321/firmenfeier |
 | Vereinsfeier | http://localhost:4321/vereinsfeier |
